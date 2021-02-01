@@ -1,7 +1,7 @@
 <template>
   <div id="menuButton">
     <div class="title">菜单按钮管理</div>
-    <div>
+    <div class="headerBtnRight">
       <el-button
         size="small"
         type="primary"
@@ -241,7 +241,7 @@
               <img class="operation"   @click="handleClick(scope.row)" src="../../assets/images/edit_icon.svg" >
             </el-tooltip>
             <el-tooltip  class="item" effect="dark" content="删除" placement="top">
-              <img     @click="handleDelete(scope.row)"  src="../../assets/images/delete_icon.svg" >
+              <img   class="operation"  @click="handleDelete(scope.row)"  src="../../assets/images/delete_icon.svg" >
             </el-tooltip>
 
             <!-- <img class="operation"   @click="handleClick(scope.row)" src="../../assets/images/edit_icon.svg" >
@@ -299,7 +299,7 @@ export default {
       data: [], //规则
       buttonData: [], //添加按钮
       dataLanguage: [],
-      headers : {Authorization:getCookie('enterprisePass')}
+      // headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   mounted() {
@@ -308,7 +308,7 @@ export default {
   methods: {
     getData() {
       //初始化数据
-        getAllMenuList({},this.headers).then((res) => {
+        getAllMenuList().then((res) => {
           this.tableData = res.data;
         })
         .catch((err) => {
@@ -341,7 +341,7 @@ export default {
           id: row.id,
           menuType: row.type,
       }
-      getMenuButtonDetail(params,this.headers)
+      getMenuButtonDetail(params)
         .then((result) => {
           this.getMenuList();
           this.valueId = result.data.id; //id
@@ -370,7 +370,7 @@ export default {
           id: row.id,
           menuType: row.type,
       }
-      getDeleteDetail(params,this.headers)
+      getDeleteDetail(params)
         .then((result) => {
           if (result.status == 0) {
             //没有就直接删除
@@ -397,7 +397,7 @@ export default {
           id: row.id,
           menuType: row.type,
       }
-      deleteMenuButton(params,this.headers)
+      deleteMenuButton(params)
         .then((result) => {
           this.getData();
         })
@@ -434,7 +434,7 @@ export default {
     },
     getMenuList() {
       //获取菜单按钮列表
-      getListMenu({},this.headers)
+      getListMenu()
         .then((result) => {
           this.options = this.getTreeData(result.data);
         })
@@ -486,7 +486,7 @@ export default {
           url: this.route,
           icon:this.icon
       }
-      addMenu(params,this.headers)
+      addMenu(params)
         .then((result) => {
           if (result.status == 0) {
             this.dialogVisible = false;
@@ -534,7 +534,7 @@ export default {
         parentId: (this.topMenu = null ? "" : this.topMenu),
         list: this.buttonData,
       };
-     addButton(buttonListData,this.headers)
+     addButton(buttonListData)
         .then((result) => {
           if (result.status == 0) {
             this.dialogVisible = false;
@@ -589,7 +589,7 @@ export default {
           parentId: (this.topMenu = null ? "" : this.topMenu),
           url: this.route,
         }
-      updateMenuButton(params,this.headers)
+      updateMenuButton(params)
         .then((result) => {
           if (result.status == 0) {
             this.$message.success({

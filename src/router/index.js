@@ -63,6 +63,17 @@ Router.prototype.push = function push (location) {
           name: 'templateAudit',
           component: ()=>import('../components/Audit/templateAudit.vue')
         },
+        // 模板审核
+        {
+          path: '/statisticalReport',
+          name: 'statisticalReport',
+          component: ()=>import('../components/statistics/statisticalReport.vue')
+        },
+        {
+          path: '/message',
+          name: 'message',
+          component: () => import('../components/Message/message.vue')
+        },
         // 套餐审核
         // {
         //   path: '/packageAudit',
@@ -147,12 +158,12 @@ Router.prototype.push = function push (location) {
         //   name: 'dictionaries',
         //   component: ()=>import('../components/BaseSeeting/dictionaries.vue')
         // },
-        
+
       ]
     }
   ]
 
-  
+
 const router = new Router({
   // mode: 'history', // 打包的时候有这句的删掉，没有就不用管
   base: process.env.BASE_URL,

@@ -12,8 +12,8 @@
                 </el-button>
                 <el-button class="addBtn" type="primary" size="small"  @click="reset">
                   <i class="iconfont iconguanbi"></i>
-                </el-button> 
-                <el-select v-model="status" clearable size="small" placeholder="状态">
+                </el-button>
+                <el-select v-model="status" :ref="productType + item.name"  @visible-change="isShowSelectOptions" clearable size="small" placeholder="状态">
                   <el-option
                     v-for="item in statusList"
                     :key="item.id"
@@ -31,10 +31,10 @@
                     <i class="iconfont iconxinzeng"></i>
                     新建
                   </el-button>
-                  <el-button v-has="'channelUpdate'" class="iconBtn" :class="{ 'active': !isDisable }" :disabled="isDisable" size="small"   @click="editAction(selectData[0])">
+                  <!-- <el-button v-has="'channelUpdate'" class="iconBtn" :class="{ 'active': !isDisable }" :disabled="isDisable" size="small"   @click="editAction(selectData[0])">
                     <i class="iconfont iconxiugai"></i>
                     修改
-                  </el-button>
+                  </el-button> -->
                   <el-button v-has="'channelDisable'" class="iconBtn" :class="{ 'active': !isDisable }" :disabled="isDisable" size="small"  @click="stopUse">
                     <i class="iconfont icontingyong"></i>
                     停用
@@ -47,11 +47,12 @@
                     <i class="iconfont iconshanchu"></i>
                     删除
                   </el-button>
-              </div> 
+              </div>
             </div>
             <div >
               <el-table
                 border
+                class="table"
                 :header-cell-style="{background:'#F5F7FA',color:'#333333'}"
                 size="small"
                 :data="tableData"
@@ -74,7 +75,7 @@
                   <el-table-column prop="creator" label="创建人" width="90" show-overflow-tooltip></el-table-column>
                   <el-table-column prop="statusStr" label="状态" width="100" show-overflow-tooltip></el-table-column>
                   <el-table-column prop="createTime" label="创建时间" width="160" show-overflow-tooltip></el-table-column>
-                  <el-table-column  label="操作" min-width="110" show-overflow-tooltip>
+                  <el-table-column fixed="right" label="操作" min-width="110" show-overflow-tooltip>
                     <template slot-scope="scope">
                       <el-tooltip v-has="'channelUpdate'"  effect="dark" content="修改" placement="top">
                           <img class="operation"  @click="editAction(scope.row)" src="../../assets/images/edit_icon.svg" >
@@ -82,8 +83,8 @@
                       <el-tooltip v-has="'channelDelete'"  effect="dark" content="删除" placement="top">
                           <img class="operation"  @click="deleteAction(2,scope.row)"  src="../../assets/images/delete_icon.svg" >
                       </el-tooltip>
-                    </template>  
-                  </el-table-column> 
+                    </template>
+                  </el-table-column>
               </el-table>
             </div>
             <div class="footer_page">
@@ -123,7 +124,10 @@
         </el-form-item>
         <el-form-item prop="port" label="通道号：">
           <el-input size="small" v-model="channelForm.port"></el-input>
-        </el-form-item> 
+        </el-form-item>
+        <el-form-item prop="channelPassword" label="通道密码：">
+          <el-input size="small" v-model="channelForm.channelPassword"></el-input>
+        </el-form-item>
         <el-form-item prop="channelType" label="通道类型：">
           <el-select v-model="channelForm.channelType" clearable size="small" placeholder="请选择通道类型">
             <el-option
@@ -132,9 +136,9 @@
               :label="item.value"
               :value="item.id"
             >
-            </el-option> 
+            </el-option>
           </el-select>
-        </el-form-item>  
+        </el-form-item>
         <el-form-item prop="operator" label="运营商：">
           <el-select v-model="channelForm.operator" clearable size="small" placeholder="请选择运营商">
             <el-option
@@ -143,20 +147,20 @@
               :label="item.value"
               :value="item.id"
             >
-            </el-option> 
+            </el-option>
           </el-select>
-        </el-form-item> 
+        </el-form-item>
         <el-form-item prop="business" label="适用业务：">
-          <el-select v-model="channelForm.business" clearable size="small" placeholder="请选择适用业务">
+          <el-select v-model="channelForm.business" :disabled="channelForm.bindFlag" clearable size="small" placeholder="请选择适用业务">
             <el-option
               v-for="item in businessTypeList"
               :key="item.id"
               :label="item.name"
               :value="item.id"
             >
-            </el-option> 
+            </el-option>
           </el-select>
-        </el-form-item>  
+        </el-form-item>
         <el-form-item prop="channelAuthority" label="通道权限：">
           <el-select v-model="channelForm.channelAuthority" clearable size="small" placeholder="请选择通道权限">
             <el-option
@@ -165,9 +169,9 @@
               :label="item.value"
               :value="item.id"
             >
-            </el-option> 
+            </el-option>
           </el-select>
-        </el-form-item>  
+        </el-form-item>
         <el-form-item v-if="productType == 2" prop="isExtend" label="是否可扩展：">
           <el-select v-model="channelForm.isExtend" clearable size="small" placeholder="是否可扩展">
             <el-option
@@ -176,15 +180,15 @@
               :label="item.value"
               :value="item.id"
             >
-            </el-option> 
+            </el-option>
           </el-select>
-        </el-form-item> 
-        <el-form-item v-if="productType == 2" prop="extendNumber" label="可扩展位数：">
+        </el-form-item>
+        <el-form-item v-if="productType == 2 && channelForm.isExtend === 0" prop="extendNumber" label="可扩展位数：">
           <el-input size="small" v-model.number="channelForm.extendNumber" ></el-input>
         </el-form-item>
         <el-form-item prop="concurrency" label="并发数：">
           <el-input size="small" v-model.number="channelForm.concurrency" ></el-input>
-        </el-form-item>  
+        </el-form-item>
         <el-form-item prop="costUnit" label="计费单位：">
           <el-select v-model="channelForm.costUnit" clearable size="small" placeholder="请选择计费单位">
             <el-option
@@ -193,9 +197,9 @@
               :label="item.value"
               :value="item.id"
             >
-            </el-option> 
+            </el-option>
           </el-select>
-        </el-form-item> 
+        </el-form-item>
         <el-form-item prop="unitPrice" label="计费单价：">
           <el-input size="small" v-model="channelForm.unitPrice" ></el-input>
         </el-form-item>
@@ -205,6 +209,17 @@
             <el-radio :label="1">否</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item prop="imageUrl" label="通道logo：" v-if="channelForm.channelType === 8">
+          <el-upload
+            class="avatar-uploader"
+            action="#"
+            :show-file-list="false"
+            :http-request="uploadPictures"
+            :before-upload="beforeAvatarUpload">
+            <img v-if="channelForm.imageUrl" :src="channelForm.imageUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>        
+        </el-form-item>
         <el-form-item prop="remark" label="备注：">
           <el-input
             type="textarea"
@@ -213,12 +228,12 @@
             :autosize="{ minRows: 4, maxRows: 8 }"
             show-word-limit
             v-model="channelForm.remark"
-          ></el-input>      
+          ></el-input>
         </el-form-item>
         <el-form-item prop="parmentDepartment" label="">
             <el-button  type="primary" size="small" v-if="channelDrawerTitle === '新建通道'" @click="confirmAddChannel">提 交</el-button>
-            <el-button  type="primary" size="small" v-if="channelDrawerTitle === '编辑通道'" @click="confirmEditChannel">提 交</el-button>
-            <el-button  size="small" @click="closeChannelDrawer">取 消</el-button> 
+            <el-button  type="primary" size="small" v-if="channelDrawerTitle === '修改通道'" @click="confirmEditChannel">提 交</el-button>
+            <el-button  size="small" @click="closeChannelDrawer">取 消</el-button>
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -226,7 +241,7 @@
   </div>
 </template>
 <script>
-import {getChannelList,addChannel,editChannel,deleteChannel,disableChannel,enableChannel,getProductTypeList,getBussinessTypeList} from '../../api/channel/api'
+import {getChannelList,addChannel,editChannel,deleteChannel,disableChannel,enableChannel,getProductTypeList,getBussinessTypeList,uploadFile} from '../../api/channel/api'
 import { getCookie,getButtonList} from "../../public";
 
 export default {
@@ -247,6 +262,38 @@ export default {
         callback();
       }
     }
+    const validateConcurrency = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('并发数不能为空'));
+      }
+      if (!Number.isInteger(value) || value <= 0) {
+        callback(new Error('并发数格式为正整数'));
+      } else {
+        callback();
+      }
+    };   
+    const validateExtendNumber = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('可扩展位数不能为空'));
+      }
+      if (!Number.isInteger(value) || value <= 0) {
+        callback(new Error('可扩展位数格式为正整数'));
+      } else {
+        callback();
+      }
+    };   
+    const validateChannelPassword = (rule, value, callback) => {
+      let reg = new RegExp("[\\u4E00-\\u9FFF]+","g")
+      if(!value){
+          callback(new Error('通道密码不能为空'))
+        }else if(reg.test(value)){
+          callback(new Error('通道密码不可为中文'))
+        }else if(value.length > 30){
+          callback(new Error('通道密码长度不能超过30位'))
+        }else{
+        callback();
+      }
+    };   
     return {
       loading:false,
       currentPage: 1, //当前页数
@@ -270,7 +317,7 @@ export default {
       channelDrawerTitle:'',//新增修改账号抽屉标题
       channelDrawer:false,//是否显示账户抽屉
       businessTypeList: [],//业务列表
-      channelTypeList:[],//通道类型列表 
+      channelTypeList:[],//通道类型列表
       operatorList:[
         {
           id:0,
@@ -288,7 +335,7 @@ export default {
           id:3,
           value:'联通'
         },
-      ],//运营商列表 
+      ],//运营商列表
       channelAuthorityList:[],//通道权限列表
       isExtendList:[
         {
@@ -304,12 +351,21 @@ export default {
         {
           id:0,
           value:'元/条'
+        },
+        {
+          id:1,
+          value:'元/60s'
+        },
+        {
+          id:2,
+          value:'元/6s'
         }
       ],//计费单位列表
       channelForm:{
         id:null,
-        channelName:null,//通道名称 
+        channelName:null,//通道名称
         port:null, //通道号
+        channelPassword:null,//通道密码
         channelType:null, //通道类型
         operator:null, //运营商
         business:null, //使用业务
@@ -320,14 +376,17 @@ export default {
         costUnit: null,//计费单位
         unitPrice: null,//计费单价
         radio:0,//是否启用
-        remark:null//备注
+        imageUrl:null,
+        remark:null,//备注
+        bindFlag:false
       },//套餐表单数据
       channelRules: {
         channelName:[
           { required: true, message: "名称不能为空", trigger: "blur" },
           { max: 50, message: "名称不超过50个字符", trigger: "blur" },
         ],
-        port:[{ required: true, message: "端口号不能为空", trigger: "blur" }],
+        port:[{ required: true, message: "通道号不能为空", trigger: "blur" }],
+        channelPassword:[{ required: true, validator:validateChannelPassword, trigger: "blur" }],
         channelType:[{ required: true, message: "通道类型不能为空", trigger: "change" }],
         operator:[{ required: true, message: "运营商不能为空", trigger: "change" }],
         business:[{ required: true, message: "适用业务不能为空", trigger: "change" }],
@@ -335,28 +394,32 @@ export default {
         isExtend:[{ required: true, message: "是否可扩展不能为空", trigger: "change" }],
         extendNumber:[{ required: true, message: "可扩展位数不能为空", trigger: "blur" }],
         extendNumber:[
-          { required: true, message: "可扩展位数不能为空", trigger: "blur" },
-          { type:'number', message: "可扩展位数格式不正确", trigger: "blur" },
+          { required: true, validator:validateExtendNumber, trigger: "blur" }
+          // { required: true, message: "可扩展位数不能为空", trigger: "blur" },
+          // { type:'number', message: "可扩展位数格式不正确", trigger: "blur" },
         ],
         costUnit:[{ required: true, message: "计费单位不能为空", trigger: "change" }],
         unitPrice:[{ required: true, validator:validatePrice, trigger: "blur" }],
         concurrency:[
-          {required: true, message: "并发数不能为空", trigger: "blur" },
-          { type:'number', message: "并发数格式不正确", trigger: "blur" }
+          { required: true, validator:validateConcurrency, trigger: "blur" }
+          // {required: true, message: "并发数不能为空", trigger: "blur" },
+          // { type:'number', message: "并发数格式不正确", trigger: "blur" }
         ],
-        radio:[{ required: true, message: "请选择是否启用", trigger: "change" }]
+        radio:[{ required: true, message: "请选择是否启用", trigger: "change" }],
+        imageUrl:[{ required: true, message: "通道logo不能为空", trigger: "change" }]
       },//套餐表单验证规则
       selectData:[],//表格选择的数据
       isDisable:true,//是否禁用头部按钮
+      selectTab:'5G消息',
       tableHeight:window.innerHeight - 369 +'',
       timer: null,
-      headers : {Authorization:getCookie('enterprisePass')},
+      // headers : {Authorization:getCookie('enterprisePass')},
     };
   },
   methods: {
     // 获取产品列表
-    getProduct(){  
-      getProductTypeList({code:'productType'},this.headers).then(res=>{
+    getProduct(){
+      getProductTypeList({code:'productType'}).then(res=>{
         if(res.status == 0){
           this.productList = res.data
           this.productType = ''+res.data[0].id
@@ -385,7 +448,7 @@ export default {
         currentPage: this.currentPage,
         pageSize: this.pageSize,
       }
-      getChannelList(params,this.headers).then(res=>{
+      getChannelList(params).then(res=>{
         this.loading = false
         if(res.status == 0){
           this.tableData = res.data.records
@@ -407,6 +470,7 @@ export default {
     },
     // 选择tab
     handleClick(tab){
+      this.selectTab = tab.label
       this.productType = tab.name
       this.status = null
       this.searchCont= null
@@ -418,7 +482,7 @@ export default {
     },
     // 重置清空
     reset(){
-      this.currentPage = 1 
+      this.currentPage = 1
       this.pageSize = 10
       this.status = null
       this.searchCont= null
@@ -426,7 +490,7 @@ export default {
     },
     // 查询
     searchAction(){
-      this.currentPage = 1 
+      this.currentPage = 1
       this.getDataList()
     },
     // 回车查询
@@ -438,7 +502,7 @@ export default {
     // 获取业务类型
     getTypeListData(){
       let params = {id:this.productType}
-      getBussinessTypeList(params,this.headers).then(res=>{
+      getBussinessTypeList(params).then(res=>{
         if(res.status == 0){
           this.businessTypeList = res.data
           // this.industryTypeList = res.data.industryType
@@ -462,8 +526,9 @@ export default {
       this.getFilterTypeList()
       this.channelDrawerTitle = '新建通道'
       this.channelForm.id = null,
-      this.channelForm.channelName = null,//通道名称 
+      this.channelForm.channelName = null,//通道名称
       this.channelForm.port = null, //通道号
+      this.channelForm.channelPassword = null,//通道密码
       this.channelForm.channelType = null, //通道类型
       this.channelForm.operator = null, //运营商
       this.channelForm.business = null, //使用业务
@@ -474,7 +539,12 @@ export default {
       this.channelForm.costUnit =  null,//计费单位
       this.channelForm.unitPrice =  null,//计费单价
       this.channelForm.radio = 0,//是否启用
+      this.channelForm.imageUrl = null//logo
       this.channelForm.remark = null//备注
+      this.channelForm.bindFlag = false 
+      this.$nextTick(()=>{
+        this.$refs.channelForm.clearValidate();
+      })
       this.channelDrawer = true
     },
     // 确认新建通道
@@ -487,7 +557,7 @@ export default {
           let _this = this
           this.timer = setTimeout(function () {
             _this.timer = null;
-            let params ={     
+            let params ={
               businessType: _this.channelForm.business,
               channelAccess: _this.channelForm.channelAuthority,
               concurrency: _this.channelForm.concurrency,
@@ -501,9 +571,11 @@ export default {
               remark: _this.channelForm.remark,
               status: _this.channelForm.radio,
               type: _this.channelForm.channelType,
-              unitPrice: _this.channelForm.unitPrice 
+              unitPrice: _this.channelForm.unitPrice,
+              password:_this.channelForm.channelPassword,
+              logoUrl:_this.channelForm.imageUrl
             }
-            addChannel(params,_this.headers).then(res=>{
+            addChannel(params).then(res=>{
               if(res.status == 0){
                 _this.$message.success({
                   message:'通道新建成功',
@@ -533,10 +605,11 @@ export default {
     editAction(row){
       this.getTypeListData()
       this.getFilterTypeList()
-      this.channelDrawerTitle = '编辑通道'
+      this.channelDrawerTitle = '修改通道'
       this.channelForm.id = row.id,
-      this.channelForm.channelName = row.name,//通道名称 
+      this.channelForm.channelName = row.name,//通道名称
       this.channelForm.port = row.number, //通道号
+      this.channelForm.channelPassword = row.password, //通道密码
       this.channelForm.channelType = row.type, //通道类型
       this.channelForm.operator = row.operator, //运营商
       this.channelForm.business = row.businessType, //使用业务
@@ -547,7 +620,9 @@ export default {
       this.channelForm.costUnit =  row.costUnit,//计费单位
       this.channelForm.unitPrice =  row.unitPriceStr,//计费单价
       this.channelForm.radio = row.status,//是否启用
+      this.channelForm.imageUrl = row.logoUrl //logo
       this.channelForm.remark = row.remark//备注
+      this.channelForm.bindFlag = row.bindFlag
       this.channelDrawer = true
     },
     // 修改套餐确认
@@ -569,9 +644,11 @@ export default {
             remark: this.channelForm.remark,
             status: this.channelForm.radio,
             type: this.channelForm.channelType,
-            unitPrice: this.channelForm.unitPrice 
+            unitPrice: this.channelForm.unitPrice,
+            password:this.channelForm.channelPassword,
+            logoUrl:this.channelForm.imageUrl
           }
-          editChannel(params,this.headers).then(res=>{
+          editChannel(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'通道修改成功',
@@ -616,7 +693,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          disableChannel(params,this.headers).then(res=>{
+          disableChannel(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'操作成功',
@@ -641,7 +718,7 @@ export default {
         .catch(() => {
           console.log("取消");
         });
-    }, 
+    },
     // 启用
     startUse(){
       let ids = []
@@ -655,40 +732,29 @@ export default {
         }
         ids.push(this.selectData[i].id)
       }
-      // this.$confirm("确定启用所选通道么？", {
-      //   cancelButtonText: "取 消",
-      //   confirmButtonText: "确 定",
-      //   confirmButtonClass:'btn-custom-confirm',
-      //   center:true
-      // })
-      //   .then(() => {
-          let params = {ids:ids.toString()}
-          enableChannel(params,this.headers).then(res=>{
-            if(res.status == 0){
-              this.$message.success({
-                message:'操作成功',
-                center:true
-              })
-              this.getDataList()
-            }else{
-              this.$message({
-                // message:res.message,
-                message:'操作失败',
-                center:true,
-                type:res.status === 2 ? 'warning':'error'
-              })
-            }
-          }).catch(err=>{
-            this.$message.error({
-              message:err,
-              center:true
-            })
+      let params = {ids:ids.toString()}
+      enableChannel(params).then(res=>{
+        if(res.status == 0){
+          this.$message.success({
+            message:'操作成功',
+            center:true
           })
-        // })
-        // .catch(() => {
-        //   console.log("取消");
-        // });
-    }, 
+          this.getDataList()
+        }else{
+          this.$message({
+            // message:res.message,
+            message:'操作失败',
+            center:true,
+            type:res.status === 2 ? 'warning':'error'
+          })
+        }
+      }).catch(err=>{
+        this.$message.error({
+          message:err,
+          center:true
+        })
+      })
+    },
     // 删除
     deleteAction(type,row){
       let ids =[]
@@ -707,7 +773,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          deleteChannel(params,this.headers).then(res=>{
+          deleteChannel(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'操作成功',
@@ -740,7 +806,11 @@ export default {
           {
             id:0,
             value:'Chatbot'
-          }
+          },
+          {
+            id:8,
+            value:'web Chatbot'
+          },
         ]
         this.channelAuthorityList = [
           {
@@ -832,9 +902,46 @@ export default {
       this.$nextTick(()=>{
         this.$refs.channelForm.resetFields();
         this.channelDrawer = false
-      })  
+      })
     },
-  },
+    // 头部搜索下拉框选中后失焦防止回车触发下拉框
+    isShowSelectOptions(isShowSelectOptions){
+      if(!isShowSelectOptions) this.$refs[`${this.productType}`+`${this.selectTab}`][0].blur();
+    },
+    // 上传logo
+    uploadPictures(item) {
+      const formData = new FormData()
+      formData.append('file', item.file)
+      uploadFile(formData).then((res) => {
+        if (res.status == 0) {
+          this.channelForm.imageUrl = res.data
+          this.$message({
+            type: 'success',
+            message: '上传成功!',
+            center: true,
+          })
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.message,
+            center: true,
+          })
+        }
+      })
+    },
+    // 上传logo前
+    beforeAvatarUpload(file) {
+      const isJPG = (file.type === 'image/jpeg' || file.type === 'image/png')
+      const isLt2M = file.size / 1024 / 1024 < 5;
+      if (!isJPG) {
+        this.$message.error('通道logo格式为JPG/PNG!');
+      }
+      if (!isLt2M) {
+        this.$message.error('通道logo大小不能超过 5MB!');
+      }
+      return isJPG && isLt2M;
+    }  
+},
   mounted() {
     this.getProduct()
     window.addEventListener("keydown", this.keyDown); //绑定监听事件
@@ -854,23 +961,32 @@ export default {
   // overflow: auto;
   color: #333;
   letter-spacing: 0.75px;
+  padding: 0 70px;
+  box-sizing: border-box;
   .title {
     height: 26px;
     line-height: 26px;
     padding-top: 40px;
-    margin-left: 70px;
+    // margin-left: 70px;
     font-size: 20px;
   }
   .tab{
     margin-top: 18px;
-    /deep/ .el-tabs__nav{
-      margin-left: 70px;
+    /deep/ .el-tabs__nav-wrap.is-scrollable{
+      padding: 0 30px;
+    }
+    /deep/ .el-tabs__nav-next{
+      font-size: 18px;
+      margin-top: -1px;
+      // margin-left: 70px;
+    }
+    /deep/ .el-tabs__nav-prev{
+      font-size: 18px;
+      margin-top: -1px;
     }
     .container{
       width: 100%;
       height: calc(100% - 96px);
-      padding: 0 70px;
-      box-sizing: border-box;
       .status{
         display: flex;
         align-items: center;
@@ -905,5 +1021,31 @@ export default {
 }
 .drawerContent{
   padding: 0 50px;
+}
+/deep/ .el-tabs__nav-wrap::after{
+    height: 1px;
+}
+/deep/ .avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+/deep/.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+/deep/ .avatar-uploader-icon {
+  font-size: 20px;
+  color: #8c939d;
+  width: 60px;
+  height: 60px;
+  line-height: 60px;
+  text-align: center;
+}
+/deep/ .avatar {
+  width: 60px;
+  height: 60px;
+  display: block;
 }
 </style>

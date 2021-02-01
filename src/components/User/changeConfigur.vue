@@ -1,7 +1,7 @@
 <template>
   <div id="changeConfigur">
     <el-dialog
-      title="变更配置"
+      title="账户配置"
       :visible.sync="changeToast"
       :close-on-click-modal="false"
       :before-close="handleClose"
@@ -29,7 +29,7 @@
             <el-checkbox v-for="item in configureData.topProductTypeList" :key="item.productType" v-model="item.productTypeChecked" @change="changeProduct(item)">{{item.productTypeStr}}</el-checkbox>
         </el-form-item>
         <el-form-item
-          label="*业务配置："
+          label="*资费配置："
           v-if="configureData.bottomProductTypeSelectedList.length > 0"
         >
           <el-tabs v-model="selectTab">
@@ -104,9 +104,17 @@ export default {
         {
           id:0,
           value:'元/条'
+        },
+        {
+          id:1,
+          value:'元/60s'
+        },
+        {
+          id:2,
+          value:'元/6s'
         }
       ],//单位列表
-      headers : {Authorization:getCookie('enterprisePass')},
+      // headers : {Authorization:getCookie('enterprisePass')},
     };
   },
   methods: {
@@ -155,11 +163,20 @@ export default {
         obj.businessTypeList = arr2
         arr.push(obj)
       }
+      for(let k = 0;k<arr.length;k++){
+        if(arr[k].businessTypeList.length < 1){
+          this.$message.error({
+            message:'选中产品的业务类型为空',
+            center:true
+          })
+          return
+        }
+      }
       let params ={
         accountId: this.configureData.accountId,
         bottomBusinessSelectedList: arr,
       }
-      configEnterpriseAccount(params,this.headers).then(res=>{
+      configEnterpriseAccount(params).then(res=>{
         if(res.status == 0){
           this.$message.success({
             message:'配置变更成功',
@@ -199,9 +216,10 @@ export default {
   .demo-table-expand {
     /deep/ .el-form-item {
       float: left;
+      width: 100%;
       /deep/.el-form-item__content {
         float: left;
-        width: 520px;
+        width: calc(100% - 90px);
         margin-left: 0 !important;
         /deep/ .el-tabs--top {
           background-color: #fff;

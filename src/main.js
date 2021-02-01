@@ -7,9 +7,11 @@ import 'element-ui/lib/theme-chalk/index.css'
 import './assets/icon/iconfont.css'
 import App from './App'
 import router from './router'
+import dayjs from 'dayjs'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
+
 
 
 // 控制按钮权限指令

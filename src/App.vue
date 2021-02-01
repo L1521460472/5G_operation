@@ -17,6 +17,9 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
+body .el-table th.gutter{
+display: table-cell!important;
+}
 // 页面头部
 .headerBtn{
   display: flex;
@@ -27,7 +30,7 @@ export default {
     display: flex;
     align-items: center;
     /deep/ .el-button+.el-button{
-      margin-left: 1px;
+      margin-left: 1px !important;
     }
     .el-dropdown{
       margin-right: 1px;
@@ -39,7 +42,13 @@ export default {
     .search{
       margin-left: 10px;
     }
-
+    .el-input--small .el-input__inner{
+      height: 36px;
+      line-height: 36px;
+    }
+    .el-input--small .el-input__icon{
+      line-height: 36px;
+    }
   }
   .headerBtnRight{
       display: flex;
@@ -59,6 +68,26 @@ export default {
       }
   }
 }
+.headerBtn .headerBtnLeft .el-button+.el-button{
+      margin-left: 1px !important;
+}
+.headerBtnRight .el-button span{
+  display: flex;
+  align-items: center;
+}
+.headerBtnRight .el-button span .iconfont{
+  margin-right: 4px
+} 
+// 去除固定表格列中的底边框
+.table{
+  /deep/ .el-table__fixed-right{
+    height: calc(100% - 8px) !important;   //设置高优先，以覆盖内联样式
+  }
+  /deep/ .el-table__fixed-right::before, .el-table__fixed::before{
+    height: 0 !important;
+  }
+}
+
 /* 部分公共样式 */
 /* 交换confirmz弹窗确认按钮位置 */
 .btn-custom-confirm {
@@ -187,6 +216,7 @@ export default {
   font-size: 14px;
   background-size: 14px;
 }
+
 /* 更改全局遮罩样式 */
 .v-modal {
   top: 60px !important;
@@ -194,10 +224,10 @@ export default {
 .el-drawer__wrapper {
   top: 60px !important;
 }
-.btn-custom-cancel {
-  float: right;
-  margin-left: 10px;
-}
+// .btn-custom-cancel {
+//   float: right ;
+//   margin-left: 10px;
+// }
 /* 操作图标居中 */
 .operation {
   margin-left: 10px;

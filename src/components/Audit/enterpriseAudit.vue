@@ -10,7 +10,7 @@
           <el-button class="addBtn" type="primary" size="small" @click="reset">
             <i class="iconfont iconguanbi"></i>
           </el-button> 
-          <el-select v-model="auditStatus" clearable size="small" placeholder="审核状态">
+          <el-select v-model="auditStatus" ref="searchSelect"  @visible-change="isShowSelectOptions" clearable size="small" placeholder="审核状态">
             <el-option
               v-for="item in auditStatusList"
               :key="item.id"
@@ -153,7 +153,7 @@ export default {
       rules: {
         refuseReason: [{ required: true, message: "审核意见不能为空", trigger: "blur" }],
       },
-      headers : {Authorization:getCookie('enterprisePass')},
+      // headers : {Authorization:getCookie('enterprisePass')},
       tableHeight:window.innerHeight - 310 +''
     };
   },
@@ -167,7 +167,7 @@ export default {
         currentPage:this.currentPage,
         pageSize: this.pageSize
       }
-      enterpriseAuditList(params,this.headers).then(res=>{
+      enterpriseAuditList(params).then(res=>{
         this.loading = false
         if(res.status == 0){
           res.data.records.map(item=>{
@@ -229,7 +229,7 @@ export default {
         checkStatus: 1,
         enterpriseAuthenticationId: row.enterpriseAuthenticationId
       }
-      enterpriseAudit(params,this.headers).then(res=>{
+      enterpriseAudit(params).then(res=>{
         if(res.status == 0){
           this.$message.success({
             message:'审核通过成功',
@@ -272,7 +272,7 @@ export default {
             checkStatus: 2,
             enterpriseAuthenticationId: this.form.enterpriseAuthenticationId
           }
-          enterpriseAudit(params,this.headers).then(res=>{
+          enterpriseAudit(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'审核拒绝成功',
@@ -306,6 +306,11 @@ export default {
       this.currentPage = val;
       this.getDataList()
     },
+    // 头部搜索下拉框选中后失焦防止回车触发下拉框
+    isShowSelectOptions(isShowSelectOptions){
+      if(!isShowSelectOptions) this.$refs.searchSelect.blur();
+    }
+
   },
   mounted() {
     this.getDataList()

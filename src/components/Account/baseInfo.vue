@@ -42,13 +42,13 @@ export default {
       departmentName:'',
       lastLoginTime:'',
       // tableHeight:window.innerHeight - 100 +'px',
-      headers : {Authorization:getCookie('enterprisePass')}
+      // headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   methods: {},
   mounted() { 
     this.loading = true
-    getAccountBaseInfo({},this.headers).then(res=>{
+    getAccountBaseInfo().then(res=>{
       this.loading = false
       if(res.status == 0){
         this.email = res.data.email

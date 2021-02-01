@@ -10,7 +10,7 @@
           <el-button class="addBtn" type="primary" size="small"  @click="reset">
             <i class="iconfont iconguanbi"></i>
           </el-button> 
-          <el-select v-model="auditStatus" clearable size="small" placeholder="审核状态">
+          <el-select v-model="auditStatus" ref="searchSelect"  @visible-change="isShowSelectOptions" clearable size="small" placeholder="审核状态">
             <el-option
               v-for="item in auditStatusList"
               :key="item.id"
@@ -26,6 +26,7 @@
       </div>
       <el-table
         border
+        class="table"
         :header-cell-style="{background:'#F5F7FA',color:'#333333'}"
         size="small"
         :data="tableData"
@@ -52,7 +53,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="mouldId" label="模板ID"  width="140" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="mouldCode" label="模板ID"  width="140" show-overflow-tooltip></el-table-column>
         <el-table-column prop="mouldName" label="模板名称"  width="140" show-overflow-tooltip></el-table-column>
         <el-table-column prop="enterpriseAccountAppName" label="应用"  width="140"  show-overflow-tooltip></el-table-column>
         <el-table-column prop="channelName" label="通道"  width="120" show-overflow-tooltip></el-table-column>
@@ -79,7 +80,7 @@
         </el-table-column>
         <!-- <el-table-column prop="updateTime" label="更新时间" width="180" show-overflow-tooltip></el-table-column> -->
         <el-table-column prop="checkCreateTime" label="提交时间" width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column  label="操作" min-width="110" show-overflow-tooltip>
+        <el-table-column fixed="right" label="操作" min-width="110" show-overflow-tooltip>
           <template slot-scope="scope">
             <el-tooltip v-has="'templateCheck'"  effect="dark" content="审核通过" placement="top">
               <img class="operation"  @click="passAction(scope.row)" src="../../assets/images/auditPass_icon.svg" >
@@ -133,7 +134,7 @@
   </div>
 </template>
 <script>
-import {templeteAuditList,templeteAudit,businessTypeList} from '../../api/audit/api'
+import {templeteAuditList,templeteAudit} from '../../api/audit/api'
 import { getCookie,getButtonList} from "../../public";
 import cardList from "./cardList";
 import fileList from "./fileList"
@@ -163,7 +164,6 @@ export default {
         }
       ],//审核状态列表
       searchCont:null,//搜索内容
-      businessTypeList:[],//业务类型列表
       tableData:[],
       // iamgeLeftUrl: require("../../assets/images/pause2_icon.png"),
       // imageRightUrl: require("../../assets/images/play_icon.png"),
@@ -176,8 +176,8 @@ export default {
       rules: {
         refuseReason: [{ required: true, message: "审核意见不能为空", trigger: "blur" }],
       },
-      headers : {Authorization:getCookie('enterprisePass')},
-      tableHeight:window.innerHeight - 310 +''
+      tableHeight:window.innerHeight - 310 +'',
+      // headers : {Authorization:getCookie('enterprisePass')},
     };
   },
   methods: {
@@ -190,18 +190,10 @@ export default {
         currentPage: this.currentPage,
         pageSize: this.pageSize
       }
-      templeteAuditList(params,this.headers).then(res=>{
+      templeteAuditList(params).then(res=>{
         this.loading = false
         if(res.status == 0){
           this.total = res.data.total
-          // 遍历组装业务类型文本
-          res.data.records.map(item=>{
-            this.businessTypeList.map(item2=>{
-              if(item.businessType == item2.id){
-                item.businessTypeStr = item2.dictionaryName
-              }
-            })
-          })
           this.tableData = res.data.records
         }else{
           this.$message({
@@ -219,25 +211,25 @@ export default {
       })
     },
     // 获取业务类型
-    getBusinessTypeList(){
-      businessTypeList({typeCode:'businessType'},this.headers).then(res=>{
-        if(res.status == 0){
-          this.businessTypeList = res.data
-          this.getDataList()
-        }else{
-          this.$message({
-            message:res.message,
-            center:true,
-            type:res.status === 2 ? 'warning':'error'
-          })
-        }
-      }).catch(err=>{
-        this.$message.error({
-          message:err,
-          center:true
-        })
-      })
-    },
+    // getBusinessTypeList(){
+    //   businessTypeList({typeCode:'businessType'},this.headers).then(res=>{
+    //     if(res.status == 0){
+    //       this.businessTypeList = res.data
+    //       this.getDataList()
+    //     }else{
+    //       this.$message({
+    //         message:res.message,
+    //         center:true,
+    //         type:res.status === 2 ? 'warning':'error'
+    //       })
+    //     }
+    //   }).catch(err=>{
+    //     this.$message.error({
+    //       message:err,
+    //       center:true
+    //     })
+    //   })
+    // },
     // 刷新
     refresh(){
       this.getDataList()
@@ -275,7 +267,7 @@ export default {
         checkStatus: 1,
         mouldAuthenticationId: row.mouldAuthenticationId
       }
-      templeteAudit(params,this.headers).then(res=>{
+      templeteAudit(params).then(res=>{
         if(res.status == 0){
           this.$message.success({
             message:'模板审核成功',
@@ -318,7 +310,7 @@ export default {
             checkStatus: 2,
             mouldAuthenticationId: this.form.mouldAuthenticationId
           }
-          templeteAudit(params,this.headers).then(res=>{
+          templeteAudit(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'审核拒绝成功',
@@ -357,10 +349,15 @@ export default {
       this.currentPage = val;
       this.getDataList()
     },
+    // 头部搜索下拉框选中后失焦防止回车触发下拉框
+    isShowSelectOptions(isShowSelectOptions){
+      if(!isShowSelectOptions) this.$refs.searchSelect.blur();
+    }
+
   },
 
   mounted() {
-    this.getBusinessTypeList()
+    this.getDataList()
     window.addEventListener("keydown", this.keyDown); //绑定监听事件
   },
   destroyed() {

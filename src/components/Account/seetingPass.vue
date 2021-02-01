@@ -80,7 +80,7 @@ export default {
         newPassWord2: [{ validator: validateNewPass2, trigger: "blur" }],
       },
       // tableHeight:window.innerHeight - 100 +'px',
-      headers : {Authorization:getCookie('enterprisePass')}
+      // headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   methods: {
@@ -97,7 +97,7 @@ export default {
             newPassword: password,
             confirmNewPassword: password
           }
-          changePassword(params,this.headers).then(res=>{
+          changePassword(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'密码设置成功',

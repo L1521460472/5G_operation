@@ -87,14 +87,14 @@ export default {
       mouldsToBeApprove:null,//待审核模板
       packagesToBeApprove :null,//待审核套餐
       pertcentage:null,
-      headers : {Authorization:getCookie('enterprisePass')}
+      // headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   methods: {
     // 请求页面数据
     getListData(){
       this.loading = true
-      getHomeIndexData({},this.headers).then(res=>{
+      getHomeIndexData().then(res=>{
         this.loading = false
         if(res.status == 0){
           this.accountsToBeApprove = res.data.accountsToBeApprove,//待审核账户

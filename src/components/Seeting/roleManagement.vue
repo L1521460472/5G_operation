@@ -3,7 +3,7 @@
     <div class="title">角色权限</div>
     <div class="content">
       <div class="roleLeft">
-        <div class="addRole">
+        <div class="addRole headerBtnRight">
           <el-button class="addBtn" type="primary" v-if="roleAddBtn" size="small" @click="addRole">
             <i class="iconfont iconxinzeng"></i>
             新增角色
@@ -26,7 +26,7 @@
       <div class="roleRight">
         <div class="header">
           <div class="title2">功能权限</div>
-          <div class="headerBtn">
+          <div class="headerBtn headerBtnRight">
             <el-button  type="primary" size="small" @click="copyRole" v-if="copyBtn">
               <i class="iconfont iconfuzhi"></i>
               复制权限并新建角色
@@ -152,13 +152,13 @@ export default {
       authorityEditBtn:false,//确定权限分配按钮
       innerHeight:window.innerHeight-100 + 'px',
       timer: null,
-      headers : {Authorization:getCookie('enterprisePass')}
+      // headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   methods: {
     // 获取角色列表
     getRoleList(){
-      getRoleData({},this.headers).then(res=>{
+      getRoleData().then(res=>{
         if(res.status == 0){
           this.roleList = res.data
           this.selectRoleId = res.data[0].id
@@ -181,7 +181,7 @@ export default {
     getAuthorityList(){
       this.loading = true
       let roleId = {roleId:this.selectRoleId}
-      getRoleAuthorityList(roleId,this.headers).then(res=>{
+      getRoleAuthorityList(roleId).then(res=>{
         this.loading = false
         if(res.status == 0){
           this.treeData = res.data.treeNodeList
@@ -258,7 +258,7 @@ export default {
               description: _this.form.roleDescribe,
               name: _this.form.roleName
             }
-            addRole(params,_this.headers).then(res=>{
+            addRole(params).then(res=>{
               if(res.status == 0){
                 _this.$message.success({
                   message:'角色新增成功',
@@ -285,7 +285,7 @@ export default {
               description: _this.form.roleDescribe,
               name: _this.form.roleName
             }
-            copyRole(params,_this.headers).then(res=>{
+            copyRole(params).then(res=>{
               if(res.status == 0){
                 _this.$message.success({
                   message:'角色复制并新增成功',
@@ -320,7 +320,7 @@ export default {
             description: this.form.roleDescribe,
             name: this.form.roleName
           }
-          editRole(params,this.headers).then(res=>{
+          editRole(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'角色修改成功',
@@ -356,7 +356,7 @@ export default {
       })
         .then(() => {
           let params = {id:item.id}
-          deleteRole(params,this.headers).then(res=>{
+          deleteRole(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'角色删除成功',
@@ -408,7 +408,7 @@ export default {
         center:true
       })
         .then(() => {
-          revertRoleAuthority({id:this.selectRoleId},this.headers).then(res=>{
+          revertRoleAuthority({id:this.selectRoleId}).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'权限还原成功',
@@ -455,7 +455,7 @@ export default {
         authorityList:authorityList,
         id: this.selectRoleId
       }
-      editRoleAuthority(params,this.headers).then(res=>{
+      editRoleAuthority(params).then(res=>{
         if(res.status == 0){
           this.$message.success({
             message:'权限分配成功',

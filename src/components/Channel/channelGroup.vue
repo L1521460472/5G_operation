@@ -12,8 +12,8 @@
                 </el-button>
                 <el-button class="addBtn" type="primary" size="small"  @click="reset">
                   <i class="iconfont iconguanbi"></i>
-                </el-button> 
-                <el-select v-model="businessType" clearable size="small" placeholder="业务类型">
+                </el-button>
+                <el-select v-model="businessType" :ref="productType + item.name"  @visible-change="isShowSelectOptions" clearable size="small" placeholder="业务类型">
                   <el-option
                     v-for="item in businessTypeList"
                     :key="item.id"
@@ -31,15 +31,15 @@
                     <i class="iconfont iconxinzeng"></i>
                     新建
                   </el-button>
-                  <el-button v-has="'channelGroupUpdate'" class="iconBtn" :class="{ 'active': !isDisable }" :disabled="isDisable" size="small"   @click="editAction(selectData[0])">
+                  <!-- <el-button v-has="'channelGroupUpdate'" class="iconBtn" :class="{ 'active': !isDisable }" :disabled="isDisable" size="small"   @click="editAction(selectData[0])">
                     <i class="iconfont iconxiugai"></i>
                     修改
-                  </el-button>
+                  </el-button> -->
                   <el-button v-has="'channelGroupDelete'" class="iconBtn" :class="{ 'active': !isDisable }" :disabled="isDisable" size="small"   @click="deleteAction(1,selectData)">
                     <i class="iconfont iconshanchu"></i>
                     删除
                   </el-button>
-              </div> 
+              </div>
             </div>
             <div >
               <el-table
@@ -65,9 +65,9 @@
                         <el-table-column prop="costUnitStr" label="计费单位" width="123" show-overflow-tooltip></el-table-column>
                         <el-table-column prop="unitPrice" label="计费单价￥" width="123" show-overflow-tooltip></el-table-column>
                         <el-table-column prop="remark" label="备注" width="123" show-overflow-tooltip></el-table-column>
-                      </el-table> 
+                      </el-table>
                     </template>
-                  </el-table-column> 
+                  </el-table-column>
                   <el-table-column type="selection" align="center" width="50"></el-table-column>
                   <el-table-column prop="name" label="名称" width="140" show-overflow-tooltip></el-table-column>
                   <el-table-column prop="description" label="描述" width="120" show-overflow-tooltip></el-table-column>
@@ -89,8 +89,8 @@
                       <el-tooltip v-has="'channelGroupDelete'"  effect="dark" content="删除" placement="top">
                           <img class="operation"  @click="deleteAction(2,scope.row)"  src="../../assets/images/delete_icon.svg" >
                       </el-tooltip>
-                    </template>  
-                  </el-table-column> 
+                    </template>
+                  </el-table-column>
               </el-table>
             </div>
             <div class="footer_page">
@@ -129,16 +129,16 @@
           <el-input size="small" v-model="channelGroupForm.channelGroupName"></el-input>
         </el-form-item>
         <el-form-item prop="business" label="业务类型：">
-          <el-select v-model="channelGroupForm.business" :disabled="channelGroupDrawerTitle === '编辑通道组' ? true:false" clearable size="small" placeholder="请选择业务类型">
+          <el-select v-model="channelGroupForm.business" :disabled="channelGroupDrawerTitle === '修改通道组' ? true:false" clearable size="small" placeholder="请选择业务类型">
             <el-option
               v-for="item in businessTypeList"
               :key="item.id"
               :label="item.name"
               :value="item.id"
             >
-            </el-option> 
+            </el-option>
           </el-select>
-        </el-form-item> 
+        </el-form-item>
         <el-form-item prop="remark" label="描述：">
           <el-input
             type="textarea"
@@ -147,12 +147,12 @@
             :autosize="{ minRows: 5, maxRows: 8 }"
             show-word-limit
             v-model="channelGroupForm.remark"
-          ></el-input>      
+          ></el-input>
         </el-form-item>
         <el-form-item prop="parmentDepartment" label="">
             <el-button  type="primary" size="small" v-if="channelGroupDrawerTitle === '新建通道组'" @click="confirmAddChannelGroup">提 交</el-button>
-            <el-button  type="primary" size="small" v-if="channelGroupDrawerTitle === '编辑通道组'" @click="confirmEditChannelGroup">提 交</el-button>
-            <el-button  size="small" @click="closeChannelGroupDrawer">取 消</el-button> 
+            <el-button  type="primary" size="small" v-if="channelGroupDrawerTitle === '修改通道组'" @click="confirmEditChannelGroup">提 交</el-button>
+            <el-button  size="small" @click="closeChannelGroupDrawer">取 消</el-button>
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -174,13 +174,13 @@
             </el-button>
             <el-button class="addBtn" type="primary" size="small"  @click="resetToast">
               <i class="iconfont iconguanbi"></i>
-            </el-button> 
-          </div> 
+            </el-button>
+          </div>
           <div class="bodyHeaderRight">
             <el-input v-model="channelName" size="small" maxlength="50" placeholder="通道名称">
               <i @click="searchChannelName" slot="suffix" class="el-input__icon el-icon-search"></i>
-            </el-input> 
-          </div> 
+            </el-input>
+          </div>
         </div>
         <div class="bodyMain">
           <el-table
@@ -191,7 +191,7 @@
             :data="channelTableData"
             style="width:770px"
             height="320"
-            v-loading="loading2"  
+            v-loading="loading2"
             element-loading-text="loading"
           >
             <el-table-column type="selection" align="center" width="50"></el-table-column>
@@ -209,7 +209,7 @@
           <span>已选择<span> {{selectChannelData.length}} 项</span></span>
         </span>
         <el-button type="primary" size="small" @click="channelToastTitle === '添加通道' ? confirmAddChannel():confirmRemoveChannel()" >提 交</el-button>
-        <el-button @click="closeChannelToast" size="small">取 消</el-button> 
+        <el-button @click="closeChannelToast" size="small">取 消</el-button>
       </span>
     </el-dialog>
 
@@ -258,16 +258,17 @@ export default {
       selectChannelData:[],// 新增移除表格选中数据
       loading2:false,//弹窗loading
       selectData:[],//表格选择的数据
+      selectTab:'5G消息',
       isDisable:true,//是否禁用头部按钮
       tableHeight:window.innerHeight - 369 +'',
       timer: null,
-      headers : {Authorization:getCookie('enterprisePass')},
+      // headers : {Authorization:getCookie('enterprisePass')},
     };
   },
   methods: {
     // 获取产品列表
     getProduct(){
-      getProductTypeList({code:'productType'},this.headers).then(res=>{
+      getProductTypeList({code:'productType'}).then(res=>{
         if(res.status == 0){
           this.productList = res.data
           this.productType = ''+res.data[0].id
@@ -297,7 +298,7 @@ export default {
         currentPage: this.currentPage,
         pageSize: this.pageSize,
       }
-      getChannelGroupList(params,this.headers).then(res=>{
+      getChannelGroupList(params).then(res=>{
         this.loading = false
         if(res.status == 0){
           this.tableData = res.data.records
@@ -319,6 +320,7 @@ export default {
     },
     // 选择tab
     handleClick(tab, event){
+      this.selectTab = tab.label
       this.productType = tab.name
       this.businessType = null
       this.searchCont= null
@@ -331,7 +333,7 @@ export default {
     },
     // 重置清空
     reset(){
-      this.currentPage = 1 
+      this.currentPage = 1
       this.pageSize = 10
       this.businessType = null
       this.searchCont= null
@@ -339,7 +341,7 @@ export default {
     },
     // 查询
     searchAction(){
-      this.currentPage = 1 
+      this.currentPage = 1
       this.getDataList()
     },
     // 回车查询
@@ -351,7 +353,7 @@ export default {
     // 获取业务类型
     getTypeListData(){
       let params = {id:this.productType}
-      getBussinessTypeList(params,this.headers).then(res=>{
+      getBussinessTypeList(params).then(res=>{
         if(res.status == 0){
           this.businessTypeList = res.data
         }else{
@@ -375,6 +377,9 @@ export default {
       this.channelGroupForm.channelGroupName = null, //通道名字
       this.channelGroupForm.business = null, //适用业务
       this.channelGroupForm.remark = null //备注
+      this.$nextTick(()=>{
+        this.$refs.channelGroupForm.clearValidate();
+      })
       this.channelGroupDrawer = true
     },
     // 确认新建通道组
@@ -387,13 +392,13 @@ export default {
           let _this = this
           this.timer = setTimeout(function () {
             _this.timer = null;
-            let params ={     
+            let params ={
               businessType: _this.channelGroupForm.business,
               description: _this.channelGroupForm.remark,
               name: _this.channelGroupForm.channelGroupName,
               productType: _this.productType
             }
-            addChannelGroup(params,_this.headers).then(res=>{
+            addChannelGroup(params).then(res=>{
               if(res.status == 0){
                 _this.$message.success({
                   message:'通道组新建成功',
@@ -422,7 +427,7 @@ export default {
     // 编辑
     editAction(row){
       this.getTypeListData()
-      this.channelGroupDrawerTitle = '编辑通道组'
+      this.channelGroupDrawerTitle = '修改通道组'
       this.channelGroupForm.id = row.id
       this.channelGroupForm.channelGroupName = row.name, //通道名字
       this.channelGroupForm.business = row.businessType, //适用业务
@@ -440,7 +445,7 @@ export default {
             // productType: this.productType,
             description:this.channelGroupForm.remark
           }
-          editChannelGroup(params,this.headers).then(res=>{
+          editChannelGroup(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'通道组修改成功',
@@ -482,7 +487,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          deleteChannelGroup(params,this.headers).then(res=>{
+          deleteChannelGroup(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'操作成功',
@@ -516,7 +521,7 @@ export default {
         name:this.channelName
       }
       if(type == 1){
-        getAddChannel(params,this.headers).then(res=>{
+        getAddChannel(params).then(res=>{
           this.loading2 =false
           if(res.status == 0){
             this.channelTableData = res.data
@@ -534,7 +539,7 @@ export default {
           })
         })
       }else if(type == 2){
-        getRemoveChannel(params,this.headers).then(res=>{
+        getRemoveChannel(params).then(res=>{
           this.loading2 =false
           if(res.status == 0){
             this.channelTableData = res.data
@@ -619,7 +624,7 @@ export default {
       let _this = this
       this.timer = setTimeout(function () {
         _this.timer = null;
-        increaseChannel(params,_this.headers).then(res=>{
+        increaseChannel(params).then(res=>{
           if(res.status == 0){
             _this.$message.success({
               message:'通道添加成功',
@@ -641,7 +646,7 @@ export default {
           })
         })
       }, 500);
-    }, 
+    },
     // 确认移除通道
     confirmRemoveChannel(){
       let ids = []
@@ -658,7 +663,7 @@ export default {
       let _this = this
       this.timer = setTimeout(function () {
         _this.timer = null;
-        removeChannel(params,_this.headers).then(res=>{
+        removeChannel(params).then(res=>{
           if(res.status == 0){
             _this.$message.success({
               message:'通道移除成功',
@@ -706,7 +711,7 @@ export default {
       this.$nextTick(()=>{
         this.$refs.channelGroupForm.resetFields();
         this.channelGroupDrawer = false
-      })  
+      })
     },
     // 关闭新增移除弹窗前清空数据
     closeChannelToast(){
@@ -715,7 +720,12 @@ export default {
       this.channelToast = false
       window.addEventListener("keydown", this.keyDown)
       window.removeEventListener("keydown", this.keyDown2, false);
+    },
+    // 头部搜索下拉框选中后失焦防止回车触发下拉框
+    isShowSelectOptions(isShowSelectOptions){
+      if(!isShowSelectOptions) this.$refs[`${this.productType}`+`${this.selectTab}`][0].blur();
     }
+
   },
   mounted() {
     this.getProduct()
@@ -736,23 +746,32 @@ export default {
   // overflow: auto;
   color: #333;
   letter-spacing: 0.75px;
+  padding: 0 70px;
+  box-sizing: border-box;
   .title {
     height: 26px;
     line-height: 26px;
     padding-top: 40px;
-    margin-left: 70px;
+    // margin-left: 70px;
     font-size: 20px;
   }
   .tab{
     margin-top: 18px;
-    /deep/ .el-tabs__nav{
-      margin-left: 70px;
+    /deep/ .el-tabs__nav-wrap.is-scrollable{
+      padding: 0 30px;
+    }
+    /deep/ .el-tabs__nav-next{
+      font-size: 18px;
+      margin-top: -1px;
+      // margin-left: 70px;
+    }
+    /deep/ .el-tabs__nav-prev{
+      font-size: 18px;
+      margin-top: -1px;
     }
     .container{
       width: 100%;
       height: calc(100% - 96px);
-      padding: 0 70px;
-      box-sizing: border-box;
       .status{
         display: flex;
         align-items: center;
@@ -813,5 +832,7 @@ export default {
 .bodyFooter{
   float: left;
 }
-
+/deep/ .el-tabs__nav-wrap::after{
+    height: 1px;
+  }
 </style>

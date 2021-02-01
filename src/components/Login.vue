@@ -123,7 +123,7 @@ export default {
               this.logining = false;
               if(res.status == 0){
                 setCookie("enterprisePass", res.data.token, 1/3);
-                setCookie("enterpriseUserName", res.data.userName, 1/3);
+                setCookie("enterpriseUserName",encodeURIComponent(res.data.userName), 1/3);
                 setCookie("loginName", this.ruleForm.username);
                 let headers = {Authorization:res.data.token}
                 getAllMenuList({},headers).then(res2=>{

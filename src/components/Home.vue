@@ -116,10 +116,11 @@ export default {
         "/channel",
         "/seeting",
         "/material",
-        "/baseSeeting"
+        "/baseSeeting",
+        "/statistics"
       ], //一进入就打开的菜单
       menuItems: [],
-      userName:getCookie('enterpriseUserName'),
+      userName:decodeURIComponent(getCookie('enterpriseUserName')),
       btnList: [],
       headers : {Authorization:getCookie('enterprisePass')}
     };

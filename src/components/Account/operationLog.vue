@@ -40,7 +40,7 @@ export default {
         total:0,
         tableData: [],
         tableHeight:window.innerHeight - 282 +'',
-        headers: { Authorization: getCookie("enterprisePass") },
+        // headers: { Authorization: getCookie("enterprisePass") },
     };
   },
   methods: {
@@ -49,7 +49,7 @@ export default {
           currentPage: this.currentPage,
           pageSize: this.pageSize
         } 
-        getOperationLog(params,this.headers).then(res=>{
+        getOperationLog(params).then(res=>{
             if(res.status == 0){
               this.tableData = res.data.records
               this.total = res.data.total

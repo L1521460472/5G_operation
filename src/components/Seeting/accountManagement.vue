@@ -42,7 +42,7 @@
             <el-button class="addBtn" type="primary" size="small"  @click="reset">
               <i class="iconfont iconguanbi"></i>
             </el-button> 
-            <el-select v-model="roleId" clearable size="small" placeholder="角色">
+            <el-select v-model="roleId" ref="searchSelect"  @visible-change="isShowSelectOptions" clearable size="small" placeholder="角色">
               <el-option
                 v-for="item in roleList"
                 :key="item.id"
@@ -96,7 +96,7 @@
               </template>
             </el-table-column>
             <el-table-column prop="createTime" label="创建时间" width="150" show-overflow-tooltip></el-table-column>
-            <el-table-column  label="操作" min-width="140" show-overflow-tooltip>
+            <el-table-column fixed="right" label="操作" min-width="140" show-overflow-tooltip>
               <template slot-scope="scope">
                 <el-tooltip v-if="accountEditBtn" class="item" effect="dark" content="修改" placement="top">
                   <img class="operation"   @click="accountEditAction(scope.row)" src="../../assets/images/edit_icon.svg" >
@@ -435,13 +435,13 @@ export default {
       timer: null,
       accountFlag:false,
       tableHeight:window.innerHeight - 310 +'',
-      headers : {Authorization:getCookie('enterprisePass')}
+      // headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   methods: {
     // 获取用户部门树
     getTreeList(){
-      getDepartmentTree({},this.headers).then(res=>{
+      getDepartmentTree().then(res=>{
         if(res.status == 0){
           this.treeData = this.getTreeData(res.data)
           // this.selectTreeId  = this.topTreeId= res.data[0].id
@@ -470,7 +470,7 @@ export default {
         pageSize: this.pageSize,
         currentPage: this.currentPage,
       }
-      getAccountList(params,this.headers).then(res=>{
+      getAccountList(params).then(res=>{
         this.loading = false
         if(res.status == 0){
           this.tableData = res.data.records
@@ -549,7 +549,7 @@ export default {
               parentId:_this.departmentForm.parentId,
               description:_this.departmentForm.departmentDescribe,
             }
-            addDepartment(params,_this.headers).then(res=>{
+            addDepartment(params).then(res=>{
               if(res.status == 0){
                 _this.$message.success({
                   message:'子部门新建成功',
@@ -594,7 +594,7 @@ export default {
             parentId:this.departmentForm.parentId,
             description:this.departmentForm.departmentDescribe,
           }
-          editDepartment(params,this.headers).then(res=>{
+          editDepartment(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'编辑部门成功',
@@ -630,7 +630,7 @@ export default {
       })
         .then(() => {
           let params = {id:departmentData.id}
-          deleteDepartment(params,this.headers).then(res=>{
+          deleteDepartment(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'部门删除成功',
@@ -692,7 +692,7 @@ export default {
             roleId: _this.accountForm.roleId,
             userName: _this.accountForm.name
           }
-          addAccount(params,_this.headers).then(res=>{
+          addAccount(params).then(res=>{
             if(res.status == 0){
               _this.$message.success({
                 message:'新增账号成功',
@@ -751,7 +751,7 @@ export default {
             roleId: this.accountForm.roleId,
             userName: this.accountForm.name
           }
-          editAccount(params,this.headers).then(res=>{
+          editAccount(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'修改账号成功',
@@ -808,7 +808,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          deleteAccount(params,this.headers).then(res=>{
+          deleteAccount(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'账号删除成功',
@@ -864,7 +864,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          stopUseAccount(params,this.headers).then(res=>{
+          stopUseAccount(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'账号停用成功',
@@ -907,7 +907,7 @@ export default {
         ids.push(this.selectDeleteData[i].id)
       }
       let params = {ids:ids.toString()}
-      startUseAccount(params,this.headers).then(res=>{
+      startUseAccount(params).then(res=>{
         if(res.status == 0){
           this.$message.success({
             message:'账号启用成功',
@@ -947,7 +947,7 @@ export default {
             confirmNewPassword: password,
             newPassword: password
           }
-          resetPassword(params,this.headers).then(res=>{
+          resetPassword(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'密码重置成功',
@@ -1011,6 +1011,10 @@ export default {
       this.currentPage = val;
       this.getDataList()
     },
+    // 头部搜索下拉框选中后失焦防止回车触发下拉框
+    isShowSelectOptions(isShowSelectOptions){
+      if(!isShowSelectOptions) this.$refs.searchSelect.blur();
+    },
     getTreeData(data) {
       for (var i = 0; i < data.length; i++) {
         if (data[i].children.length < 1) {
@@ -1049,7 +1053,7 @@ export default {
   mounted() {
     this.getTreeList()
     this.getDataList()
-    getRoleList({},this.headers).then(res=>{
+    getRoleList().then(res=>{
       if(res.status == 0){
         this.roleList = res.data
         this.roleList2 = res.data.filter(item=>{

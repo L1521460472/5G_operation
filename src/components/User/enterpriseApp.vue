@@ -24,6 +24,7 @@
       <div >
         <el-table
           border
+          class="table"
           :header-cell-style="{background:'#F5F7FA',color:'#333333'}"
           size="small"
           :data="tableData"
@@ -43,7 +44,6 @@
                     node-key="id"
                     :default-expand-all="false"
                     :props="defaultProps"
-                    
                     :expand-on-click-node="false"
                     :default-checked-keys="props.row.checkedList"
                     ref="tree"
@@ -64,7 +64,7 @@
           <el-table-column prop="enterpriseName" label="企业名称" width="140" show-overflow-tooltip></el-table-column>
           <el-table-column prop="belongSalesName" label="所属销售" width="100" show-overflow-tooltip></el-table-column>
           <el-table-column prop="createTime" label="创建时间" width="150" show-overflow-tooltip></el-table-column>
-          <el-table-column  label="操作" min-width="80" show-overflow-tooltip>
+          <el-table-column fixed="right" label="操作" min-width="80" show-overflow-tooltip>
             <template slot-scope="scope">
               <el-tooltip v-has="'enterpriseAccountAppConfigUpdate'"  effect="dark" content="配置" placement="top">
                 <img class="operation"  @click="settingAction(scope.row)" src="../../assets/images/app_icon.svg" >
@@ -177,7 +177,7 @@ export default {
       appSeetingDetail:null,//配置信息
       isDisable:true,//是否禁用头部按钮
       tableHeight:window.innerHeight - 310 +'',
-      headers : {Authorization:getCookie('enterprisePass')},
+      // headers : {Authorization:getCookie('enterprisePass')},
     };
   },
   methods: {
@@ -189,7 +189,7 @@ export default {
         currentPage: this.currentPage,
         pageSize: this.pageSize
       }
-      getAppList(params,this.headers).then(res=>{
+      getAppList(params).then(res=>{
         this.loading = false
         if(res.status == 0){
           res.data.records.map(item=>{
@@ -237,7 +237,7 @@ export default {
     },
     // 配置
     settingAction(row){
-      getAppSettigDetail({id:row.id},this.headers).then(res=>{
+      getAppSettigDetail({id:row.id}).then(res=>{
         if(res.status == 0){
           this.appSeetingDetail = res.data
           this.selectId = row.id
@@ -287,7 +287,7 @@ export default {
         bottomSelectedList: arr,
         id:this.selectId
       }
-      changeaAppSettig(params,this.headers).then(res=>{
+      changeaAppSettig(params).then(res=>{
         if(res.status == 0){
           this.$message.success({
             message:'配置成功',
@@ -311,7 +311,7 @@ export default {
     },
     // 展开表格请求详情数据
     handleExpand(row,expandedRows){
-      getAppSettigDetail({id:row.id},this.headers).then(res=>{
+      getAppSettigDetail({id:row.id}).then(res=>{
         if(res.status == 0){
           let checkedList = []
           res.data.bottomSelectedList.map(item=>{
@@ -427,5 +427,15 @@ export default {
 }
 .el-tree{
   background-color: transparent;
+  padding-top: 6px;
+}
+/deep/ .el-tabs__nav-wrap::after{
+  height: 1px;
+}
+/deep/ .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner{
+  background-color: #368cfe
+}
+/deep/ .el-checkbox__input.is-disabled.is-indeterminate .el-checkbox__inner{
+  background-color: #368cfe
 }
 </style>

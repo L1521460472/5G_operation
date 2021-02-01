@@ -23,7 +23,7 @@
           <el-button  type="primary" size="small"  @click="reset">
             <i class="iconfont iconguanbi"></i>
           </el-button> 
-          <el-select style="width:100px" v-model="accountStatus" clearable size="small" placeholder="账户状态">
+          <el-select style="width:100px" ref="searchSelect" v-model="accountStatus" @visible-change="isShowSelectOptions" clearable size="small" placeholder="账户状态">
             <el-option
               v-for="item in accountStatusList"
               :key="item.id"
@@ -42,8 +42,8 @@
               创建账户
             </el-button>
             <el-button v-has="'enterpriseAccountConfigUpdate'" class="iconBtn" :class="{ 'active': !isDisable }" :disabled="isDisable" size="small"   @click="changeConfigur">
-              <i class="iconfont iconbiangengneirong"></i>
-              变更配置
+              <i class="iconfont iconpeizhi"></i>
+              配置
             </el-button>
             <el-button v-has="'enterpriseAccountDisable'"  class="iconBtn" :class="{ 'active': !isDisable }" :disabled="isDisable" size="small"  @click="stopUse">
               <i class="iconfont icontingyong"></i>
@@ -66,6 +66,7 @@
       <div >
         <el-table
           border
+          class="table"
           :header-cell-style="{background:'#F5F7FA',color:'#333333'}"
           size="small"
           :data="tableData"
@@ -114,7 +115,7 @@
                         <el-table-column prop="amount" label="单价" show-overflow-tooltip></el-table-column>
                       </el-table> 
                     </el-form-item>
-                    <el-form-item label="业务配置：" class="business" v-if="props.row.bottomProductTypeSelectedList">
+                    <el-form-item label="资费配置：" class="business" v-if="props.row.bottomProductTypeSelectedList">
                       <el-tabs  :value="'business' + props.$index + 0">
                         <el-tab-pane  v-for="(item,index) in props.row.bottomProductTypeSelectedList" :key="item.productType" :label="item.productTypeStr" :name="'business' + props.$index + index">
                           <el-table
@@ -174,7 +175,7 @@
           <el-table-column prop="accountStatusStr" label="账户状态" width="100" show-overflow-tooltip></el-table-column>
           <el-table-column prop="commercialStatusStr" label="商用状态" width="100" show-overflow-tooltip></el-table-column> --> -->
           <!-- <el-table-column prop="createTime" label="创建时间" width="150" show-overflow-tooltip></el-table-column> -->
-          <el-table-column  label="操作" min-width="200" show-overflow-tooltip>
+          <el-table-column fixed="right" label="操作" min-width="200" show-overflow-tooltip>
             <template slot-scope="scope">
               <el-tooltip v-if="delayBtn && scope.row.commercialStatus === 1"  effect="dark" content="延期" placement="top">
                 <img class="operation"  @click="delayAction(scope.row)" src="../../assets/images/delay_icon.svg" >
@@ -268,7 +269,7 @@
           <el-input size="small" v-model="accountForm.contacts"></el-input>
         </el-form-item>
         <el-form-item prop="phone" label="联系电话：">
-          <el-input size="small" v-model.number="accountForm.phone"></el-input>
+          <el-input size="small" v-model="accountForm.phone"></el-input>
         </el-form-item>
         <el-form-item prop="email" label="联系邮箱：">
           <el-input size="small" v-model="accountForm.email"></el-input>
@@ -422,7 +423,7 @@
 import bcryptjs from "bcryptjs";
 import md5 from 'js-md5'
 import {enterpriseAccountList,getIndustryTypeList,enterpriseAccountDetail,addEnterpriseAccount,editEnterpriseAccount,deleteEnterpriseAccount,disableEnterpriseAccount,enableEnterpriseAccount,unlockEnterpriseAccount,resetPassword,configEnterpriseAccount,getBelongInfo,testTransferBusiness,testDelay,saveCustomList,getCustomList} from '../../api/userName/api'
-import { regexpPassword ,regexpAccount,getCookie,getButtonList} from "../../public";
+import { regexpPassword ,regexpAccount,regexpMobile,getCookie,getButtonList} from "../../public";
 import changeConfigur from './changeConfigur'
 
 export default {
@@ -442,6 +443,16 @@ export default {
         callback(new Error("账号长度为6-20位"));
       } else if (!regexpAccount(value)) {
         callback(new Error("账号必须有数字和小写字母组成"));
+      } else {
+        callback();
+      }
+    };
+    // 联系电话验证规则
+    var validatePhone = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("联系电话不能为空"));
+      } else if (!regexpMobile(value)) {
+        callback(new Error("联系电话格式不正确"));
       } else {
         callback();
       }
@@ -703,8 +714,8 @@ export default {
           { max: 10, message: "长度不超过10个字", trigger: "blur" }
         ],
         phone:[
-          { required: true, message: '联系电话不能为空', trigger: 'blur' },
-          { type: 'number', message: '联系电话格式不正确', trigger: 'blur'}
+          { required: true, validator: validatePhone, trigger: 'blur' },
+          // { type: 'number', message: '联系电话格式不正确', trigger: 'blur'}
         ],
         industry:[{ required: true, message: "所属行业不能为空", trigger: "change" }],
         account:[{ required: true,validator: validateAccount, trigger: "blur" }],
@@ -759,7 +770,7 @@ export default {
       commercialBtn:false,//商用按钮
       tableHeight:window.innerHeight - 310 +'',
       timer: null,
-      headers : {Authorization:getCookie('enterprisePass')},
+      // headers : {Authorization:getCookie('enterprisePass')},
     };
   },
   methods: {
@@ -772,7 +783,7 @@ export default {
         currentPage: this.currentPage,
         pageSize: this.pageSize
       }
-      enterpriseAccountList(params,this.headers).then(res=>{
+      enterpriseAccountList(params).then(res=>{
         this.loading = false
         if(res.status == 0){
           res.data.records.map(item=>{
@@ -803,7 +814,7 @@ export default {
     },
     // 获取表头数据
     getTableHeader(){
-      getCustomList({mouldCode:'businessAccount'},this.headers).then(res=>{
+      getCustomList({mouldCode:'businessAccount'}).then(res=>{
         if(res.status == 0){
           this.getDataList()
           if(res.data !== null){
@@ -832,7 +843,7 @@ export default {
     // 获取行业列表
     industryType(){
       let params =['industryType','province']
-      getIndustryTypeList(params,this.headers).then(res=>{
+      getIndustryTypeList(params).then(res=>{
         if(res.status == 0){
           this.industryList = res.data.industryType
           this.provinceList = res.data.province
@@ -852,7 +863,7 @@ export default {
     },
     // 获取销售人员及关联部门
     getBelong(){
-      getBelongInfo({},this.headers).then(res=>{
+      getBelongInfo().then(res=>{
         if(res.status == 0){
           this.accountForm.belongDept = res.data.belongDeptName
           this.accountForm.belongSales = res.data.belongSalesName
@@ -891,7 +902,7 @@ export default {
           listJson: JSON.stringify(this.formHeaderList),
           moduleCode: 'businessAccount'
         }
-        saveCustomList(params,this.headers).then(res=>{
+        saveCustomList(params).then(res=>{
           if(res.status == 0){
             this.$message.success({
               message:'保存成功',
@@ -937,7 +948,7 @@ export default {
     },
     // 表格展开时获取对应的账户信息
     handleExpand(row,expandedRows){
-      enterpriseAccountDetail({id:row.id},this.headers).then(res=>{
+      enterpriseAccountDetail({id:row.id}).then(res=>{
         if(res.status == 0){
           this.tableData.map(item=>{
             if(item.id === row.id){
@@ -1022,6 +1033,9 @@ export default {
       this.accountForm.password2 = ''
       this.industryType()
       this.getBelong()
+      this.$nextTick(()=>{
+        this.$refs.accountForm.clearValidate();
+      })  
       this.accountDrawer = true
     },
     // 新增账号确认
@@ -1049,7 +1063,7 @@ export default {
               province: _this.accountForm.provice,
               type: _this.accountForm.accountType
             }
-            addEnterpriseAccount(params,_this.headers).then(res=>{
+            addEnterpriseAccount(params).then(res=>{
               if(res.status == 0){
                 _this.$message.success({
                   message:'创建账户成功',
@@ -1113,7 +1127,7 @@ export default {
             province: this.accountForm.provice,
             type: this.accountForm.accountType
           }
-          editEnterpriseAccount(params,this.headers).then(res=>{
+          editEnterpriseAccount(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'账号修改成功',
@@ -1139,7 +1153,7 @@ export default {
     },
     // 变更配置
     changeConfigur(){
-        enterpriseAccountDetail({id:this.selectData[0].id},this.headers).then(res=>{
+        enterpriseAccountDetail({id:this.selectData[0].id}).then(res=>{
           if(res.status == 0){
             let newbottomBusinessSelectedList= res.data.bottomProductTypeSelectedList.filter(item=>{
               return item.productTypeChecked
@@ -1184,7 +1198,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          disableEnterpriseAccount(params,this.headers).then(res=>{
+          disableEnterpriseAccount(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'账号停用成功',
@@ -1231,7 +1245,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          enableEnterpriseAccount(params,this.headers).then(res=>{
+          enableEnterpriseAccount(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'账号启用成功',
@@ -1278,7 +1292,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          unlockEnterpriseAccount(params,this.headers).then(res=>{
+          unlockEnterpriseAccount(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'账号解锁成功',
@@ -1322,7 +1336,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          deleteEnterpriseAccount(params,this.headers).then(res=>{
+          deleteEnterpriseAccount(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'账号删除成功',
@@ -1367,7 +1381,7 @@ export default {
             confirmNewPassword: password,
             newPassword: password
           }
-          resetPassword(params,this.headers).then(res=>{
+          resetPassword(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'密码重置成功',
@@ -1406,7 +1420,7 @@ export default {
             delayTimeId: this.testForm.dealyTime,
             ids: this.testForm.id
           }
-          testDelay(params,this.headers).then(res=>{
+          testDelay(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'操作成功',
@@ -1458,7 +1472,7 @@ export default {
             ids: this.testForm.id,
             signingDate: this.testForm.signingTime
           }
-          testTransferBusiness(params,this.headers).then(res=>{
+          testTransferBusiness(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'操作成功',
@@ -1526,6 +1540,10 @@ export default {
         this.testToast = false
       })  
     },
+    // 头部搜索下拉框选中后失焦防止回车触发下拉框
+    isShowSelectOptions(isShowSelectOptions){
+      if(!isShowSelectOptions) this.$refs.searchSelect.blur();
+    }
   },
   watch: {
     authorityBttonList:{
@@ -1646,4 +1664,16 @@ export default {
     overflow: auto;
   }
 }
+.table{
+ /deep/ .el-table__fixed-body-wrapper{
+   top: 41px !important;
+ }
+}
+/deep/ .el-tabs__nav-wrap::after{
+  height: 1px;
+}
+/deep/ .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner{
+  background-color: #368cfe
+}
+
 </style>

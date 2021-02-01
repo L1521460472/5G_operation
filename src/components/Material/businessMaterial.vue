@@ -5,14 +5,14 @@
         <el-tabs v-model="activeName" @tab-click="handleClick">
           <el-tab-pane label="产品类型" name="first">
             <div class="content">
-              <div class="btn-group">
-                <el-button type="primary" size="small" style="color:#fff" @click="productionAdd">
+              <div class="btn-group headerBtnRight">
+                <el-button type="primary" size="small" style="color:#fff" @click="productionAdd" v-has="'productTypeConfigAdd'">
                   <i class="iconfont iconxinzeng"></i>添加
                 </el-button>
                 <!-- <el-button size="small" style="color: #368CFE" @click="batchEdit">
                   <i class="iconfont iconxiugai"></i>修改
                 </el-button> -->
-                <el-button size="small" class="iconBtn" :class="{ 'active': !batchDeleteSign1 }" :disabled="batchDeleteSign1" @click="batchDelete">
+                <el-button size="small" class="iconBtn" :class="{ 'active': !batchDeleteSign1 }" :disabled="batchDeleteSign1" @click="batchDelete" v-has="'productTypeConfigDelete'">
                   <i class="iconfont iconshanchu"></i>删除
                 </el-button>
               </div>
@@ -27,17 +27,17 @@
                   @select-all="selectAll1"
                   @selection-change="handleSelectionChange">
                   <el-table-column type="selection" align="center" width="50"></el-table-column>
-                  <el-table-column label="产品名称" prop="name"></el-table-column>
-                  <el-table-column label="描述" prop="description"></el-table-column>
+                  <el-table-column label="产品名称" prop="name" show-overflow-tooltip></el-table-column>
+                  <el-table-column label="描述" prop="description" show-overflow-tooltip></el-table-column>
                   <el-table-column label="操作人" prop="createdByStr"></el-table-column>
                   <el-table-column label="创建时间" prop="createTime"></el-table-column>
                   <el-table-column label="操作">
                     <template slot-scope="scope">
-                      <el-tooltip  class="item" effect="dark" content="编辑" placement="top">
-                        <img class="operation" src="../../assets/images/edit_icon.svg" @click="productionEdit(scope)" />
+                      <el-tooltip  class="item" effect="dark" content="修改" placement="top">
+                        <img class="operation" src="../../assets/images/edit_icon.svg" @click="productionEdit(scope)" v-has="'productTypeConfigUpdate'" />
                       </el-tooltip>
                       <el-tooltip  class="item" effect="dark" content="删除" placement="top">
-                        <img class="operation" src="../../assets/images/delete_icon.svg" @click="peoductionDelete(scope)" />
+                        <img class="operation" src="../../assets/images/delete_icon.svg" @click="peoductionDelete(scope)" v-has="'productTypeConfigDelete'" />
                       </el-tooltip>
                     </template>
                   </el-table-column>
@@ -45,20 +45,21 @@
               </div>
             </div>
             <el-drawer
-              :title="status1== true? '新增产品类型': '编辑产品类型'"
+              :title="status1== true? '新增产品类型': '修改产品类型'"
               :visible.sync="drawer1"
               size="500px"
+              :wrapperClosable="false"
               direction="rtl">
-              <el-form label-width="80px" :model="productionFormData">
-                <el-form-item label="产品名称">
-                  <el-input v-model="productionFormData.name" size="small"></el-input>
+              <el-form label-width="90px" :model="productionFormData">
+                <el-form-item label="产品名称:" required>
+                  <el-input v-model="productionFormData.name" maxlength="25" size="small"></el-input>
                 </el-form-item>
-                <el-form-item label="描述">
-                  <el-input type="textarea" :rows="6" v-model="productionFormData.description"></el-input>
+                <el-form-item label="描述:">
+                  <el-input type="textarea" :rows="6" maxlength="200" v-model="productionFormData.description"></el-input>
                 </el-form-item>
                 <el-form-item class="center">
                   <el-button size="small" type="primary" @click="submitForm1" v-if="status1">确定</el-button>
-                  <el-button size="small" type="primary" @click="updateForm" v-else>更新</el-button>
+                  <el-button size="small" type="primary" @click="updateForm" v-else>确定</el-button>
                   <el-button size="small" @click="closeDrawer1">取消</el-button>
                 </el-form-item>
               </el-form>
@@ -66,14 +67,14 @@
           </el-tab-pane>
           <el-tab-pane label="业务类型" name="second">
             <div class="content">
-              <div class="btn-group">
-                <el-button type="primary" size="small" style="color:#fff" @click="businenessAdd">
+              <div class="btn-group headerBtnRight">
+                <el-button type="primary" size="small" style="color:#fff" @click="businenessAdd" v-has="'businessTypeConfigAdd'">
                   <i class="iconfont iconxinzeng"></i>添加
                 </el-button>
                 <!-- <el-button size="small" style="color: #368CFE">
                   <i class="iconfont iconxiugai"></i>修改
                 </el-button> -->
-                <el-button size="small" class="iconBtn" :class="{ 'active': !batchDeleteSign2 }" :disabled="batchDeleteSign2" @click="batchDeleteBusiness">
+                <el-button size="small" class="iconBtn" :class="{ 'active': !batchDeleteSign2 }" :disabled="batchDeleteSign2" @click="batchDeleteBusiness" v-has="'businessTypeConfigDelete'">
                   <i class="iconfont iconshanchu"></i>删除
                 </el-button>
               </div>
@@ -103,13 +104,13 @@
                   <el-table-column label="描述" prop="description" width="140" show-overflow-tooltip></el-table-column>
                   <el-table-column label="操作人" prop="operator" width="100" show-overflow-tooltip></el-table-column>
                   <el-table-column label="创建时间" prop="createTime" width="140" show-overflow-tooltip></el-table-column>
-                  <el-table-column label="操作" width="120">
+                  <el-table-column label="操作" width="120" fixed="right">
                     <template slot-scope="scope">
-                      <el-tooltip  class="item" effect="dark" content="编辑" placement="top">
-                        <img class="operation" src="../../assets/images/edit_icon.svg" @click="businessEdit(scope.row)" />
+                      <el-tooltip  class="item" effect="dark" content="修改" placement="top">
+                        <img class="operation" src="../../assets/images/edit_icon.svg" @click="businessEdit(scope.row)" v-has="'businessTypeConfigUpdate'" />
                       </el-tooltip>
                       <el-tooltip  class="item" effect="dark" content="删除" placement="top">
-                        <img class="operation" src="../../assets/images/delete_icon.svg" @click="deleteBusiness(scope)" />
+                        <img class="operation" src="../../assets/images/delete_icon.svg" @click="deleteBusiness(scope)" v-has="'businessTypeConfigDelete'" />
                       </el-tooltip>
                     </template>
                   </el-table-column>
@@ -117,17 +118,20 @@
               </div>
             </div>
             <el-drawer
-              :title="status2== true? '新增业务类型': '编辑业务类型'"
+              :title="status2== true? '新增业务类型': '修改业务类型'"
               :visible.sync="drawer2"
               size="500px"
-              @close="closeDrawer2"
+              :wrapperClosable="false"
               direction="rtl">
               <el-form label-width="100px" :model="businessFormData" ref="businessForm" :rules="rules">
-                <el-form-item label="产品名称" prop="businessName">
-                  <el-input v-model="businessFormData.businessName" size="small"></el-input>
+                <el-form-item label="业务名称" prop="businessName">
+                  <el-input v-model="businessFormData.businessName" size="small" maxlength="12"></el-input>
+                </el-form-item>
+                <el-form-item label="业务编码" prop="code">
+                  <el-input v-model="businessFormData.code" maxlength="30" size="small"></el-input>
                 </el-form-item>
                 <el-form-item label="所属产品" prop="productTypeId">
-                  <el-select v-model="businessFormData.productTypeId" placeholder="请选择所属产品" size="small" clearable style="width:100%" @change="selectProduct">
+                  <el-select v-model="businessFormData.productTypeId" placeholder="请选择所属产品" size="small" clearable style="width:100%">
                     <el-option
                       v-for="item in productionOptions"
                       :key="item.value"
@@ -136,8 +140,8 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="发送时间段" prop="sendTime">
-                  <el-time-picker
+                <el-form-item label="发送时间段" required>
+                  <!-- <el-time-picker
                     style="width:100%"
                     size="small"
                     is-range
@@ -149,7 +153,24 @@
                     start-placeholder="开始时间"
                     end-placeholder="结束时间"
                     placeholder="请选择时间范围">
-                  </el-time-picker>
+                  </el-time-picker> -->
+                  <div class="row-center">
+                    <el-time-picker
+                      size="small"
+                      v-model="businessFormData.sendStartTime"
+                      value-format="HH:mm:ss"
+                      format="HH:mm:ss"
+                      for
+                      placeholder="开始时间">
+                    </el-time-picker> <span>-</span>
+                    <el-time-picker
+                      size="small"
+                      v-model="businessFormData.sendEndTime"
+                      value-format="HH:mm:ss"
+                      format="HH:mm:ss"
+                      placeholder="结束时间">
+                    </el-time-picker>
+                  </div>
                 </el-form-item>
                 <el-form-item label="优先级" prop="level">
                   <el-select v-model="businessFormData.level" size="small" clearable style="width:100%">
@@ -161,7 +182,7 @@
                     </el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="发送速度">
+                <el-form-item label="发送速度" required>
                   <div class="row-center">
                     <el-input size="small" v-model="businessFormData.sendSpeed"></el-input>
                     <el-select size="small" v-model="businessFormData.sendSpeedUnit" clearable>
@@ -173,7 +194,7 @@
                       </el-option>
                     </el-select>
                   </div>
-                  <span>
+                  <span class="tips">
                     当业务类型限速大于通道处理速度时，则按通道的处理速度为准。
                   </span>
                 </el-form-item>
@@ -190,7 +211,7 @@
                 <el-form-item label="计费单价" prop="unitPrice">
                   <el-input size="small" v-model="businessFormData.unitPrice"></el-input>
                 </el-form-item>
-                <el-form-item label="选择通道" prop="channelId">
+                <!-- <el-form-item label="选择通道" prop="channelId">
                   <el-select size="small" v-model="businessFormData.channelId" style="width:100%">
                     <el-option
                       v-for="item in channelOptions"
@@ -199,8 +220,8 @@
                       :value="item.value">
                     </el-option>
                   </el-select>
-                </el-form-item>
-                <el-form-item label="描述" prop="description">
+                </el-form-item> -->
+                <el-form-item label="描述">
                   <el-input type="textarea" :rows="6" v-model="businessFormData.description"></el-input>
                 </el-form-item>
                 <el-form-item class="center">
@@ -261,14 +282,17 @@ export default {
       status2: true,  // true  为新增  false 为编辑
       businessFormData: {
         businessName: '',
+        code: '',
         productTypeId: '',
-        sendTime: [],
+        // sendTime: [],
+        sendStartTime: '',
+        sendEndTime: '',
         level: '',
         sendSpeed: '',
         sendSpeedUnit: '',
         costUnit: '',
         unitPrice: '',
-        channelId: '',
+        // channelId: '',
         description: ''
       }, // 业务表单新增编辑数据
       batchDeleteSign2: true,  // 批量删除按钮是否禁用
@@ -304,26 +328,29 @@ export default {
           value: 0
         },
         {
-          label: '元/分钟',
+          label: '元/60s',
           value: 1
         },
         {
-          label: '元/每秒',
+          label: '元/s',
           value: 2
         }
       ],
-      channelOptions: [
-      ],
+      // channelOptions: [
+      // ],
       rules: {
         businessName: [
-          { required: true, message: '请输入产品名称', trigger: 'blur' }
+          { required: true, message: '请输入业务名称', trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入业务编码', trigger: 'blur' }
         ],
         productTypeId: [
           { required: true, message: '请选择所属产品', trigger: 'change' }
         ],
-        sendTime: [
-          { required: true, message: '请选择发送时间段', trigger: 'change' }
-        ],
+        // sendTime: [
+        //   { required: true, message: '请选择发送时间段', trigger: 'change' }
+        // ],
         level: [
           { required: true, message: '请选择优先级', trigger: 'change' }
         ],
@@ -333,12 +360,9 @@ export default {
         unitPrice: [
           { required: true, message: '请输入计费单价', trigger: 'blur' }
         ],
-        channelId: [
-          { required: true, message: '请选择通道', trigger: 'change' }
-        ],
-        description: [
-          { required: true, message: '请输入描述', trigger: 'blur' }
-        ]
+        // channelId: [
+        //   { required: true, message: '请选择通道', trigger: 'change' }
+        // ]
       },
       loading2: false,
     };
@@ -375,11 +399,11 @@ export default {
         this.batchDeleteSign2 = true
       }
     },
-    'businessFormData.productTypeId' () {
-      if (this.businessFormData.productTypeId != '' && this.businessFormData.productTypeId != undefined) {
-        this.selectProduct(this.businessFormData.productTypeId)
-      }
-    }
+    // 'businessFormData.productTypeId' () {
+    //   if (this.businessFormData.productTypeId != '' && this.businessFormData.productTypeId != undefined) {
+    //     this.selectProduct(this.businessFormData.productTypeId)
+    //   }
+    // }
   },
   mounted() {
     this.getProductLists()
@@ -435,7 +459,8 @@ export default {
       this.$confirm('确定要删除该条数据吗?', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        cancelButtonClass: "btn-custom-cancel"
+        confirmButtonClass:'btn-custom-confirm',
+        center:true
       }).then(() => {
         const query = {
           ids: val.row.id
@@ -469,7 +494,14 @@ export default {
     },
     // 产品新增提交
     submitForm1() {
-      // console.log(this.productionFormData)
+      if (this.productionFormData.name == '' || this.productionFormData.name == undefined) {
+        this.$message({
+          type: 'success',
+          message: '请先填写产品名称',
+          center: true
+        })
+        return
+      }
       addProduction(this.productionFormData).then(res => {
         if (res.status == 0) {
           this.$message({
@@ -536,7 +568,8 @@ export default {
       this.$confirm('确定要删除选中的数据吗?', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        cancelButtonClass: "btn-custom-cancel"
+        confirmButtonClass:'btn-custom-confirm',
+        center:true
       }).then(() => {
         const temp = this.multipleSelection1.map(item => item.id)
         const query = {
@@ -605,9 +638,15 @@ export default {
       })
     },
     businenessAdd() {  // 业务新增
-      this.businessFormData = {}
-      this.drawer2 = true
+      this.businessFormData = this.$options.data().businessFormData
+      // this.$nextTick(() => {
+        if (this.$refs.businessForm) {
+          this.$refs.businessForm.resetFields()
+          // this.$refs.businessForm.clearValidate();
+        }
+      // })
       this.status2 = true
+      this.drawer2 = true
       this.getProductOptions()
     },
     selectAll2(val){  // 表格全选事件
@@ -626,7 +665,8 @@ export default {
       this.$confirm('确定要删除选中的数据吗?', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        cancelButtonClass: "btn-custom-cancel"
+        confirmButtonClass:'btn-custom-confirm',
+        center:true
       }).then(() => {
         const tempids = this.multipleSelection2.map(element => {
           return element.id
@@ -662,14 +702,16 @@ export default {
       this.drawer2 = true
       this.status2 = false
       this.businessFormData.businessName = val.businessName
+      this.businessFormData.code = val.code
       this.businessFormData.productTypeId = val.productTypeId
-      this.businessFormData.sendTime = [val.sendStartTime, val.sendEndTime]
+      this.businessFormData.sendStartTime = val.sendStartTime
+      this.businessFormData.sendEndTime = val.sendEndTime
       this.businessFormData.level = val.level
       this.businessFormData.sendSpeed = val.sendSpeed
       this.businessFormData.sendSpeedUnit = val.sendSpeedUnit
       this.businessFormData.costUnit = val.costUnit
       this.businessFormData.unitPrice = val.unitPrice
-      this.businessFormData.channelId = val.channelId
+      // this.businessFormData.channelId = val.channelId
       this.businessFormData.description = val.description
       this.businessFormData.id = val.id
       this.getProductOptions()
@@ -679,13 +721,13 @@ export default {
       this.$confirm('确定要删除此条的数据吗?', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        cancelButtonClass: "btn-custom-cancel"
+        confirmButtonClass:'btn-custom-confirm',
+        center:true
       }).then(() => {
         const query = {
           ids: val.row.id
         }
         deleteBusiness(query).then(res => {
-          console.log(res)
         if(res.status == 0) {
             this.$message({
               type: 'success',
@@ -713,17 +755,43 @@ export default {
     submitForm2() {
       this.$refs.businessForm.validate((valid) => {
         if (valid) {
+          const regu = /^\d+(\.\d+)?$/
+          if (!regu.test(this.businessFormData.sendSpeed)) {
+            this.$message({
+              type: 'warning',
+              message: '请输入合法的发送速度',
+              center: true
+            })
+            return
+          }
+          if (!regu.test(this.businessFormData.unitPrice)) {
+            this.$message({
+              type: 'warning',
+              message: '请输入合法的计费单价',
+              center: true
+            })
+            return
+          }
+          if (this.businessFormData.sendStartTime > this.businessFormData.sendEndTime) {
+            this.$message({
+              type: 'warning',
+              message: '开始时间不能大于结束时间',
+              center: true
+            })
+            return
+          }
           const query = {
             "businessName": this.businessFormData.businessName,
-            "channelId": this.businessFormData.channelId,
+            "code": this.businessFormData.code,
+            // "channelId": this.businessFormData.channelId,
             "costUnit": this.businessFormData.costUnit,
             "description": this.businessFormData.description,
             "level": this.businessFormData.level,
             "productTypeId": this.businessFormData.productTypeId,
-            "sendEndTime": this.businessFormData.sendTime[1],
+            "sendEndTime": this.businessFormData.sendEndTime,
             "sendSpeed": this.businessFormData.sendSpeed,
             "sendSpeedUnit": this.businessFormData.sendSpeedUnit,
-            "sendStartTime": this.businessFormData.sendTime[0],
+            "sendStartTime": this.businessFormData.sendStartTime,
             "unitPrice": this.businessFormData.unitPrice
           }
           addBusiness(query).then(res => {
@@ -735,9 +803,9 @@ export default {
               })
               this.getBusinessList()
               this.drawer2 = false
-              this.$nextTick(()=>{
-                this.$refs.businessForm.resetFields();
-              })
+              // this.$nextTick(()=>{
+              //   this.$refs.businessForm.resetFields();
+              // })
             } else {
               this.$message({
                 type: 'error',
@@ -761,6 +829,23 @@ export default {
     editBusinessSubmit() {
       this.$refs.businessForm.validate((valid) => {
         if (valid) {
+          const regu = /^\d+(\.\d+)?$/
+          if (!regu.test(this.businessFormData.sendSpeed)) {
+            this.$message({
+              type: 'warning',
+              message: '请输入合法的发送速度',
+              center: true
+            })
+            return
+          }
+          if (!regu.test(this.businessFormData.unitPrice)) {
+            this.$message({
+              type: 'warning',
+              message: '请输入合法的计费单价',
+              center: true
+            })
+            return
+          }
           editBusiness(this.businessFormData).then(res => {
             if (res.status == 0) {
               this.$message({
@@ -796,38 +881,39 @@ export default {
     // 关闭抽屉
     closeDrawer2() {
       this.$nextTick(()=>{
+        // this.$refs.businessForm.clearValidate();
         this.$refs.businessForm.resetFields();
       })
       this.drawer2 = false
     },
     // 获取产品类类型时获取通道
-    selectProduct(val) {
-      const query = {
-        productTypeId: val
-      }
-      businessChannel(query).then(res => {
-        if (res.status == 0) {
-          this.channelOptions = res.data.map(element => {
-            return {
-              label: element.name,
-              value: element.id
-            }
-          })
-        } else {
-          this.$message({
-            type: 'error',
-            message: res.message,
-            center: true
-          })
-        }
-      }).catch(error => {
-        this.$message({
-          type: 'error',
-          message: error,
-          center: true
-        })
-      })
-    },
+    // selectProduct(val) {
+    //   const query = {
+    //     productTypeId: val
+    //   }
+    //   businessChannel(query).then(res => {
+    //     if (res.status == 0) {
+    //       this.channelOptions = res.data.map(element => {
+    //         return {
+    //           label: element.name,
+    //           value: element.id
+    //         }
+    //       })
+    //     } else {
+    //       this.$message({
+    //         type: 'error',
+    //         message: res.message,
+    //         center: true
+    //       })
+    //     }
+    //   }).catch(error => {
+    //     this.$message({
+    //       type: 'error',
+    //       message: error,
+    //       center: true
+    //     })
+    //   })
+    // },
 
   }
 };
@@ -837,7 +923,8 @@ export default {
 #businessMaterial{
   width: 100%;
   height: 100%;
-  // padding: 0 70px;
+  padding: 0 70px;
+  box-sizing: border-box;
   color: #333;
   letter-spacing: 0.75px;
   overflow: hidden;
@@ -845,18 +932,15 @@ export default {
     height: 26px;
     line-height: 26px;
     padding-top: 40px;
-    padding-left: 70px;
+    // padding-left: 70px;
     font-size: 20px;
     margin-bottom: 18px;
   }
   .content{
     width: 100%;
-    padding: 0 70px;
-    box-sizing: border-box;
+    // padding: 0 70px;
+    // box-sizing: border-box;
     .btn-group{
-      // /deep/ .el-button--small{
-      //   border: 1px solid rgba(54,140,254,0.5);
-      // }
       .iconBtn.active{
         color: #368CFE !important;
         border-radius: 4px;
@@ -883,7 +967,12 @@ export default {
   }
   .row-center{
       display: flex;
+      align-items: center;
       // justify-content: space-around;
+    }
+    .tips{
+      font-size:12px;
+      color:#f56c6c
     }
   // /deep/ .el-table__row td:nth-child(1) div {
   //     display: flex;
@@ -918,15 +1007,15 @@ export default {
   //   display: flex;
   //   align-items: center;
   // }
-  /deep/ .el-tabs__nav{
-    margin-left: 70px;
-  }
+  // /deep/ .el-tabs__nav{
+  //   margin-left: 70px;
+  // }
   /deep/ .el-message-box__message{
     text-align: center;
     padding: 10px 0;
   }
   /deep/ .el-button+.el-button{
-    margin-left: 0px;
+    margin-left: 3px;
   }
 }
 </style>

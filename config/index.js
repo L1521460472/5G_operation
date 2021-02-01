@@ -6,9 +6,9 @@ const path = require('path')
 // const serverIp='http://172.18.11.154:7200'
 
 
-// const serverIp='http://172.18.11.107:7200'
+const serverIp='http://172.18.11.155:7200'
 
-const serverIp='http://172.18.11.112:7200'
+const serverIp='http://172.18.11.132:7200'
 
 module.exports = {
   dev: {

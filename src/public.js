@@ -43,6 +43,11 @@ function regexpName(value) {
   return reg.test(value)
 }
 
+// 联系电话验证
+function regexpMobile(value) {
+  let reg = /^(0[0-9]{2,3}\-)?([2-9][0-9]{6,7})+(\-[0-9]{1,4})?$|(^134\d{4})|((13[0-3|5-9]|14[1|5-9]|15[0-9]|16[2|5|6|7]|17[0-8]|18[0-9]|19[0-2|5-9])\d{8}$)/
+  return reg.test(value)
+}
 
 //验证是否拥有菜单权限
 function permissionMenuList(menuList, path) {
@@ -105,6 +110,7 @@ module.exports = {
   regexpAccount,
   regexpPassword,
   regexpName,
+  regexpMobile,
   permissionMenuList,
   getButtonList,
   debounce
