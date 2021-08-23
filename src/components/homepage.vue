@@ -49,13 +49,13 @@
             <span class="backlogCount">{{mouldsToBeApprove}}</span>
           </div>
         </div>
-        <!-- <div class="backlog" @click="gotoAuditPackage">
+        <!-- <div class="backlog" @click="gotoAuditMaterial">
           <div class="left">
-            <img src="../assets/images/audit_combo.png" >
+            <img src="../assets/images/audit_material.png" >
           </div>
           <div class="right">
-            <span class="backlogTitle">待审核套餐</span>
-            <span class="backlogCount">{{packagesToBeApprove}}</span>
+            <span class="backlogTitle">待审核素材</span>
+            <span class="backlogCount">0</span>
           </div>
         </div> -->
       </div>
@@ -87,7 +87,6 @@ export default {
       mouldsToBeApprove:null,//待审核模板
       packagesToBeApprove :null,//待审核套餐
       pertcentage:null,
-      // headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   methods: {
@@ -152,12 +151,17 @@ export default {
       }
       this.$router.push('/templateAudit')
     },
-    // 待审核套餐
-    gotoAuditPackage(){
-      this.$message.warning({
-        message:'功能正在加紧开发中',
-        center:true
-      })
+    // 待审核素材
+    gotoAuditMaterial(){
+      let menuList = JSON.parse(sessionStorage.getItem('menuList'))
+      if(!permissionMenuList(menuList,'/materialAudit')){
+        this.$message.warning({
+          message:'暂无访问权限',
+          center:true
+        })
+        return
+      }
+      this.$router.push('/materialAudit')
     }
   },
   mounted() {
@@ -256,25 +260,25 @@ export default {
     }
     .backlogContent{
       justify-content: flex-start;
-        // justify-content: space-between;
+      // justify-content: space-between;
     }
   }
-  //   .shortcut {
-  //     width: 100%;
-  //     height: 300px;
-  //     background-color: #fff;
-  //     .title {
-  //       margin: 40px 0 43px 70px;
-  //       color: #333333;
-  //       font-family: Microsoft YaHei;
-  //       font-size: 20px;
-  //     }
-  //     .content{
-  //         display: flex;
-  //       justify-content: space-around;
+    .shortcut {
+      width: 100%;
+      height: 300px;
+      background-color: #fff;
+      .title {
+        margin: 40px 0 43px 70px;
+        color: #333333;
+        font-family: Microsoft YaHei;
+        font-size: 20px;
+      }
+      .content{
+          display: flex;
+        justify-content: space-around;
 
-  //     }
-  //   }
+      }
+    }
   .balnk {
     background-color: #f8f8fb;
     height: 20px;

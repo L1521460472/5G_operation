@@ -20,7 +20,11 @@
     li {
       list-style: none;
     }
-
+    /* 火狐滚动条样式 */
+    *{
+      scrollbar-color: rgba(0, 0, 0, 0.2) #f8f8fb; /* 滑块颜色  滚动条背景颜色 */
+      scrollbar-width: thin; /* 滚动条宽度有三种：thin、auto、none */
+    }
     ::-webkit-scrollbar {
       width: 8px;
       height: 8px;
@@ -39,6 +43,7 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #bfbfbf;
     };
+
     /* div::-webkit-scrollbar-corner {
       background: #179a16;
     } */

@@ -77,7 +77,7 @@ display: table-cell!important;
 }
 .headerBtnRight .el-button span .iconfont{
   margin-right: 4px
-} 
+}
 // 去除固定表格列中的底边框
 .table{
   /deep/ .el-table__fixed-right{
@@ -104,6 +104,8 @@ display: table-cell!important;
 /* 设置el-tooltip宽度 */
 .el-tooltip__popper {
   max-width: 300px !important;
+  max-height: 90% !important;
+  overflow: auto;
 }
 /* 去掉el-tooltip聚焦边框 */
 .el-tooltip:focus {
@@ -158,10 +160,15 @@ display: table-cell!important;
   border-bottom: 1px solid #e5e5e5;
   padding: 10px 20px;
   margin-bottom: 40px;
+  display: block;
+}
+.el-drawer__header>:first-child{
+  line-height: 30px;
 }
 .el-drawer__close-btn {
   font-size: 24px;
   color: #333;
+  float: right;
 }
 .el-drawer__close-btn:focus {
   outline: 0;
@@ -234,6 +241,7 @@ display: table-cell!important;
   display: block;
   float: left;
   cursor: pointer;
+  color: #409eff;
 }
 /* 表格页码 */
 .footer_page {
@@ -244,4 +252,39 @@ display: table-cell!important;
   justify-content: center;
   box-sizing: border-box;
 }
+/* el-tab  切换时蓝色边框问题 */
+.el-tabs__item:focus.is-active.is-focus:not(:active) {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.collapseDrawer{
+  .drawerContent{
+    padding: 0 20px;
+  }
+  /deep/ .el-collapse-item__header{
+    background-color: #fff !important;
+    border-bottom: 0 !important;
+  }
+  /deep/ .el-collapse-item__wrap{
+    background-color: #fff !important;
+  }
+  /deep/ .el-textarea{
+    width: 260px ;
+  }
+  /deep/ .el-input__inner{
+    width: 260px ;
+  }
+  /deep/ .el-input {
+    width: 260px ;
+  }
+}
+// 防止输入框字数限制提示挡住内容
+// .limitWord /deep/ .el-input__suffix{
+//   top: 16px !important;
+// }
+// .limitWord /deep/ .el-input__count{
+//   bottom: -20px;
+//   background-color: transparent;
+// }
+
 </style>

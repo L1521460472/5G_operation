@@ -24,9 +24,11 @@ function removeCookie(key) {
   setCookie(key, 1, -1);
 }
 
-// 账号正则校验（账号构成英文小写字母+数字构成）
+// 账号正则校验（账号构成英文小写字母、数字或特殊字符构成）
 function regexpAccount(value) {
-  let reg = /^(?![0-9]+$)(?![a-z]+$)[0-9a-z]{6,20}$/
+  // let reg =  /^[0-9a-z]*$/g
+  // let reg = /^(?![0-9]+$)(?![a-z]+$)[0-9a-z]{6,20}$/
+  let reg  =  /^[^\u4e00-\u9fa5]*$/
   return reg.test(value)
 }
 
@@ -102,6 +104,59 @@ function debounce(fn, delay) {
     }, delay);
   }
 }
+// 下载附件
+function download(url,fileName) {
+  var x = new XMLHttpRequest();
+  x.open("GET",`${url}`, true);
+  x.responseType = 'blob';
+  x.onload=function(e) {
+    var url = window.URL.createObjectURL(x.response)
+    var a = document.createElement('a');
+    a.href = url
+    a.download = fileName;
+    a.click()
+  }
+  x.send(null);
+}
+//验证白名单格式
+function whitePhone(value){
+  // 不区分中英文逗号
+  let mobileWhiteList = value.replace(/[\uff0c]/g,",")
+  // 字符串以逗号分开
+  mobileWhiteList = mobileWhiteList.split(',').filter(item => {
+    if (item != '' || item != null) {
+      return item
+    }
+  })
+  // 验证元素是否全为合格手机号码
+  let result = mobileWhiteList.every(item => {
+    return (/^1[3|4|5|6|7|8|9][0-9]{9}$/.test(item))
+  })
+  return result
+}
+// 时间大小比较
+function comparisonTime(date1,date2){
+  var oDate1 = new Date(date1);
+  var oDate2 = new Date(date2);
+  if(oDate1.getTime() > oDate2.getTime()){
+    return false
+  } else {
+    return true
+  }
+}
+
+// 价格保留四位小数，不足自动补全 
+function toFixedRrice(value){
+  var xsd=value.toString().split(".");
+  if(xsd.length == 1){
+    return (value.toString()+'.0000')
+  }else if(xsd.length > 1){
+    if(xsd[1].length == 1) return (value.toString()+'000')
+    if(xsd[1].length == 2) return (value.toString()+'00')
+    if(xsd[1].length == 3) return (value.toString()+'0')
+    if(xsd[1].length == 4) return (value.toString())
+  }
+}
 
 module.exports = {
   setCookie,
@@ -113,5 +168,9 @@ module.exports = {
   regexpMobile,
   permissionMenuList,
   getButtonList,
-  debounce
+  debounce,
+  download,
+  whitePhone,
+  comparisonTime,
+  toFixedRrice
 }

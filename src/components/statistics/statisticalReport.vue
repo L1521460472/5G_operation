@@ -99,7 +99,7 @@
         <div id="echarts"></div>
       </div>
       <div class="container">
-        <el-button type="primary" size="small" icon="iconfont icondaochu" @click="exportRepeat"> 导出</el-button>
+        <el-button v-has="'allReportStatisticsExport'" type="primary" size="small" icon="iconfont icondaochu" @click="exportRepeat"> 导出</el-button>
       </div>
       <div class="table">
         <el-table :data="tableData" border size="small" style="width: 100%">
@@ -292,11 +292,11 @@ export default {
       const query = {
         beginTime: this.value1[0],
         businessType: this.value4,
-        currentPage: 1,
+        currentPage: this.currentPage,
         endTime: this.value1[1],
-        pageSize: 15,
+        pageSize: 10000000,
         enterpriseAccountId: this.value2 == 'ENTERPRISE_ACCOUNT' ? this.value3 : '',
-        reportStatisticsTypeEnum: this.value2,
+        statisticsType: this.value2,
       }
       exportExcel(query)
         .then((res) => {
@@ -359,10 +359,12 @@ export default {
             // console.log(params);    ////可以打印出来看看数据结构哦
             let axisValueLabel = params[0].axisValueLabel
             let src = axisValueLabel + '<br>'
+            var index;
             for (var x in params) {
               src += params[x].seriesName + ': ' + params[x].value + '<br>'
+              index = params[x].dataIndex
             }
-            src += '成功率' + ': ' + arr[x] + '<br>'
+            src += '成功率' + ': ' + arr[index] + '<br>'
             return src
           },
         },
@@ -372,7 +374,7 @@ export default {
         },
         grid: {
           //表盘上下左右位置
-          left: '0',
+          left: '1%',
           right: '5%',
           bottom: '5%',
           containLabel: true,
@@ -406,6 +408,7 @@ export default {
         yAxis: {
           type: 'value',
           position: 'left',
+          minInterval: 1,
           axisLabel: {
             show: true,
             textStyle: {
@@ -441,8 +444,8 @@ export default {
         pageSize: this.pageSize,
       })
         .then((res) => {
-            console.log('res: ', res);
             this.xAxis_data = []
+            this.successRate = []
             this.series_data[0].data = []
             this.series_data[1].data = []
             this.series_data[2].data = []
@@ -452,7 +455,7 @@ export default {
             this.total2 = res.data.totalSend
             this.total3 = res.data.totalSuccess
             this.total4 = res.data.totalReceive
-            this.total5 = res.data.successRate * 100 + '%'
+            this.total5 = (res.data.successRate * 100).toFixed(2) + '%'
             res.data.dailyReportStatistics.map((item) => {
               if (item.date.length > 10) {
                 this.xAxis_data.push(item.date.substring(11, 16))
@@ -463,10 +466,14 @@ export default {
               this.series_data[1].data.push(item.totalSend)
               this.series_data[2].data.push(item.totalSuccess)
               this.series_data[3].data.push(item.totalReceive)
-              this.successRate.push(item.successRate * 100 + '%')
+              this.successRate.push((item.successRate * 100).toFixed(2) + '%')
             })
             this.tableData = res.data.dailyReportStatistics.map((item) => {
-              item.successRate = item.successRate * 100 + '%'
+              item.successRate = (item.successRate * 100).toFixed(2) + '%'
+              item.avgSendTime = item.avgSendTime + 's'
+              item.maxSendTime = item.maxSendTime + 's'
+              item.avgDeliveryTime = item.avgDeliveryTime + 's'
+              item.maxDeliveryTime = item.maxDeliveryTime + 's'
               if (item.businessType == null) {
                 item.businessType = '全部'
               }

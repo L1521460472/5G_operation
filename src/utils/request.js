@@ -8,7 +8,8 @@ const service = axios.create({
 
 // 请求拦截器
 service.interceptors.request.use(config => {
-  const token = getCookie('enterprisePass')
+  // const token = getCookie('enterprisePass')
+  const token = sessionStorage.getItem("enterprisePass")
   if (token) {
     config.headers['Authorization'] = token
   }
@@ -25,6 +26,7 @@ service.interceptors.response.use(config => {
     //   message: config.data.message,
     //   center: true
     // })
+    sessionStorage.removeItem('enterprisePass')
     router.replace('/')
     return config.data
     // parent.location.href = '/'

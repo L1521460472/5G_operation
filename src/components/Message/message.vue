@@ -73,25 +73,27 @@
               <el-table-column type="selection" width="55" align="center"></el-table-column>
               <el-table-column label="批次名称" prop="batchName" show-overflow-tooltip></el-table-column>
               <el-table-column label="应用名称" prop="appName" min-width="150" show-overflow-tooltip></el-table-column>
-              <el-table-column label="消息模板" prop="messageModuleName" show-overflow-tooltip></el-table-column>
+              <el-table-column label="业务类型" prop="businessTypeName" width="150" show-overflow-tooltip></el-table-column>
+              <el-table-column label="消息模板" prop="messageMouldName" show-overflow-tooltip></el-table-column>
               <el-table-column label="提交时间" prop="createTime" width="150" show-overflow-tooltip></el-table-column>
               <el-table-column label="定时时间" prop="timingTime" width="150" show-overflow-tooltip></el-table-column>
               <el-table-column label="完成时间" prop="finishTime" width="150" show-overflow-tooltip></el-table-column>
-              <el-table-column label="发送通道" prop="sendChaanle" width="100" show-overflow-tooltip></el-table-column>
-              <el-table-column label="发送账号" prop="createAccountName" show-overflow-tooltip></el-table-column>
+              <el-table-column label="发送企业" prop="enterpriseAccountName" width="100" show-overflow-tooltip></el-table-column>
+              <el-table-column label="发送用户" prop="createAccountName" show-overflow-tooltip></el-table-column>
               <el-table-column label="批次状态" prop="batchStatus"  show-overflow-tooltip></el-table-column>
               <el-table-column label="提交号码数" prop="submitPhones" width="100" show-overflow-tooltip></el-table-column>
               <el-table-column label="被过滤号码数" prop="filterPhones" width="100" show-overflow-tooltip></el-table-column>
               <el-table-column label="已发送号码数" prop="successPhones" width="100" show-overflow-tooltip></el-table-column>
               <el-table-column label="失败号码数" prop="failPhones" width="90" show-overflow-tooltip></el-table-column>
-              <el-table-column label="操作" width="80">
+              <el-table-column label="操作" width="80" fixed="right">
                 <template slot-scope="scope">
                   <!-- <el-tooltip class="item" effect="dark" content="取消发送" placement="top">
                     <img class="operation" src="../../assets/images/icon_24px_not_pass.svg" @click="cancaleSend(scope)">
                   </el-tooltip> -->
-                  <el-tooltip class="item" effect="dark" content="发送详情" placement="top">
+                  <span class="operation" @click="toDetail(scope)">发送详情</span>
+                  <!-- <el-tooltip class="item" effect="dark" content="发送详情" placement="top">
                     <img class="operation" src="../../assets/images/icon_24px_more.svg" @click="toDetail(scope)">
-                  </el-tooltip>
+                  </el-tooltip> -->
                 </template>
               </el-table-column>
             </el-table>
@@ -135,7 +137,7 @@
               <el-table-column label="应用名称" prop="appName" show-overflow-tooltip></el-table-column>
               <el-table-column label="业务类型" prop="businessTypeName" show-overflow-tooltip></el-table-column>
               <el-table-column label="手机号码" prop="phoneNumber" width="100" show-overflow-tooltip></el-table-column>
-              <el-table-column label="消息模板" prop="messageModules" show-overflow-tooltip></el-table-column>
+              <el-table-column label="消息模板" prop="messageMouldName" show-overflow-tooltip></el-table-column>
               <el-table-column label="发送结果" prop="sendOfResult" show-overflow-tooltip></el-table-column>
               <el-table-column label="失败原因" prop="failCause" show-overflow-tooltip>
                 <template slot-scope="scope">
@@ -201,9 +203,10 @@
                     <!-- <el-tooltip class="item" effect="dark" content="回复消息" placement="top">
                       <img class="operation" src="../../assets/images/icon_24px_reply.svg" @click="replyMessage(scope)" />
                     </el-tooltip> -->
-                    <el-tooltip class="item" effect="dark" content="查看记录" placement="top">
+                    <span class="operation" @click="handleDetails(scope.$index, scope.row)">查看记录</span>
+                    <!-- <el-tooltip class="item" effect="dark" content="查看记录" placement="top">
                       <img class="operation" src="../../assets/images/icon_24px_detail.svg" @click="handleDetails(scope.$index, scope.row)" />
-                    </el-tooltip>
+                    </el-tooltip> -->
                   </template>
                 </el-table-column>
               </el-table>
@@ -612,16 +615,16 @@ export default {
                   item.appName = item1.name
                 }
               })
-              that.messageModule.map((item2) => {
-                if (item.messageMouldId == item2.id) {
-                  item.messageModuleName = item2.name
-                }
-              })
-              that.channelList.map((item3) => {
-                if (item.channelId == item3.id) {
-                  item.sendChaanle = item3.name
-                }
-              })
+              // that.messageModule.map((item2) => {
+              //   if (item.messageMouldId == item2.id) {
+              //     item.messageModuleName = item2.name
+              //   }
+              // })
+              // that.channelList.map((item3) => {
+              //   if (item.channelId == item3.id) {
+              //     item.sendChaanle = item3.name
+              //   }
+              // })
               that.businessTypeList.map((item4) => {
                 if (item.businessType == item4.id) {
                   item.businessTypeName = item4.name
@@ -694,7 +697,7 @@ export default {
         .then((res) => {
           // console.log(res)
           const link = document.createElement('a')
-          let blob = new Blob([res.data], { type: 'application/vnd.ms-excel' })
+          let blob = new Blob([res], { type: 'application/vnd.ms-excel' })
           link.style.display = 'none'
           link.href = URL.createObjectURL(blob)
           link.download = '批次记录' + new Date().getTime() + '.xls'
@@ -770,11 +773,11 @@ export default {
                   item.appName = item1.name
                 }
               })
-              that.messageModule.map((item2) => {
-                if (item.messageMouldId == item2.id) {
-                  item.messageModules = item2.name
-                }
-              })
+              // that.messageModule.map((item2) => {
+              //   if (item.messageMouldId == item2.id) {
+              //     item.messageModules = item2.name
+              //   }
+              // })
               that.channelList.map((item3) => {
                 if (item.channelId == item3.id) {
                   item.sendChaanle = item3.name
@@ -1016,6 +1019,7 @@ export default {
       const that = this
       recoedDetail(val)
         .then((res) => {
+          console.log(res)
           if (res.status == 0) {
             const data = res.data
             data.unshift(this.tempData)
@@ -1060,8 +1064,8 @@ export default {
       recoedDetail(val)
         .then((res) => {
           // console.log(res.data.data)
-          if (res.data.status == 0) {
-            const data = res.data.data
+          if (res.status == 0) {
+            const data = res.data
             if (val.scrollType == 'DOWN') {
               const temp = data.slice(this.msgs.length)
               // console.log(data)
@@ -1131,13 +1135,16 @@ export default {
       dayjs(new Date()).format('YYYY-MM-DD'),
     ]
     this.getDataList()
-    this.getMessageLists()
+    // this.getMessageLists()
     this.getMessageTypeList()
-    this.getChannelList()
+    // this.getChannelList()
   },
   mounted() {
     this.getSendBatchList()
     window.addEventListener('keydown', this.keyDown)
+    // Promise.all([this.getMessageTypeList]).then(() => {
+    //   this.getSendBatchList()
+    // })
   },
   destroyed() {
     window.removeEventListener('keydown', this.keyDown, false)
@@ -1365,3 +1372,4 @@ export default {
     }
 }
 </style>
+

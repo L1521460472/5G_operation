@@ -17,11 +17,11 @@ Router.prototype.push = function push (location) {
       name: 'Login',
       component: Login,
     },
-    {
-      path: '/login',
-      name: 'Login',
-      component: Login,
-    },
+    // {
+    //   path: '/login',
+    //   name: 'Login',
+    //   component: Login,
+    // },
     {
       path: '*',
       component: NotFound,
@@ -63,16 +63,53 @@ Router.prototype.push = function push (location) {
           name: 'templateAudit',
           component: ()=>import('../components/Audit/templateAudit.vue')
         },
-        // 模板审核
+        // 插件审核
+        {
+          path: '/pluginAudit',
+          name: 'pluginAudit',
+          component: ()=>import('../components/Audit/pluginAudit.vue')
+        },
+        // 素材审核
+        {
+          path: '/materialAudit',
+          name: 'materialAudit',
+          component: ()=>import('../components/Audit/materialAudit.vue')
+        },
+        // 统计报表
         {
           path: '/statisticalReport',
           name: 'statisticalReport',
           component: ()=>import('../components/statistics/statisticalReport.vue')
         },
-        {
+        { // 企业账单
+          path: '/businessBill',
+          name: 'businessBill',
+          component: () => import('../components/Bill/businessBill.vue')
+        },
+        { // 收支管理
+          path: '/incomeManage',
+          name: 'incomeManage',
+          component: () => import('../components/Bill/incomeManage.vue')
+        },
+        { // 到账管理
+          path: '/accountManage',
+          name: 'accountManage',
+          component: () => import('../components/Bill/arriveManage.vue')
+        },
+        { // rcs消息追踪
           path: '/message',
-          name: 'message',
-          component: () => import('../components/Message/message.vue')
+          name: 'rcsMessage',
+          component: () => import('../components/Message/rcsMessage.vue')
+        },
+        { // sms消息追踪
+          path: '/smsMessage',
+          name: 'smsMessage',
+          component: () => import('../components/Message/smsMessage.vue')
+        },
+        { // vms消息追踪
+          path: '/vmsMessage',
+          name: 'vmsMessage',
+          component: () => import('../components/Message/vmsMessage.vue')
         },
         // 套餐审核
         // {
@@ -101,11 +138,24 @@ Router.prototype.push = function push (location) {
           component: ()=>import('../components/Channel/channelGroup.vue')
         },
         //通道资源
+        // {
+        //   path: '/channelResources',
+        //   name: 'channelResources',
+        //   component: ()=>import('../components/Channel/channelResources.vue')
+        // },
+        //通道管理
         {
-          path: '/channelResources',
-          name: 'channelResources',
-          component: ()=>import('../components/Channel/channelResources.vue')
+          path: '/channelManage',
+          name: 'channelManage',
+          component: ()=>import('../components/Channel/channelManage.vue')
         },
+        //签名管理
+        {
+          path: '/signatureManage',
+          name: 'signatureManage',
+          component: ()=>import('../components/Channel/signatureManage.vue')
+        },
+
         //账户
         // 基本信息
         {
@@ -124,6 +174,12 @@ Router.prototype.push = function push (location) {
           path: '/operationLog',
           name: 'operationLog',
           component: ()=>import('../components/Account/operationLog.vue')
+        },
+        //  超频管理
+        {
+          path: '/overclock',
+          name: 'overclock',
+          component: ()=>import('../components/safe/overclock.vue')
         },
         //设置
         // 账户管理
@@ -144,6 +200,11 @@ Router.prototype.push = function push (location) {
           path: '/businessMaterial',
           name: 'businessMaterial',
           component: ()=>import('../components/Material/businessMaterial.vue')
+        },
+        {
+          path: '/sectionManage',
+          name: 'sectionManage',
+          component: ()=>import('../components/Material/sectionManage.vue')
         },
         //基础设置
         // 菜单按钮管理
@@ -173,11 +234,17 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   //获取用户权限信息，为空即没登录，跳转至登录页
-  if (to.path === '/login') {
-    next();
+  const token = sessionStorage.getItem('enterprisePass')
+  if (to.path === '/') {
+    if (token) {
+      next('/homepage')
+    } else {
+      next()
+    }
+    // next()
   } else {
-    if (!getCookie('enterprisePass')) {
-      next('/login');
+    if (!token) {
+      next('/');
     } else {
       next();
     }

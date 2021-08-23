@@ -80,7 +80,6 @@ export default {
         newPassWord2: [{ validator: validateNewPass2, trigger: "blur" }],
       },
       // tableHeight:window.innerHeight - 100 +'px',
-      // headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   methods: {

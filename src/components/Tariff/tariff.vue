@@ -302,7 +302,6 @@ export default {
       deleteBtn:false,//删除按钮 
       tableHeight:window.innerHeight - 310 +'',
       timer: null,
-      headers : {Authorization:getCookie('enterprisePass')},
     };
   },
   methods: {
@@ -315,7 +314,7 @@ export default {
         currentPage: this.currentPage,
         pageSize: this.pageSize,
       }
-      getTariffData(params,this.headers).then(res=>{
+      getTariffData(params).then(res=>{
         this.loading = false
         if(res.status == 0){
           this.tableData = res.data.records
@@ -361,7 +360,7 @@ export default {
     // 获取业务类型
     getTypeListData(){
       let params = ['productType','businessType','industryType']
-      getTypeList(params,this.headers).then(res=>{
+      getTypeList(params).then(res=>{
         if(res.status == 0){
           this.productList = res.data
           this.businessTypeList = res.data.businessType,
@@ -434,7 +433,7 @@ export default {
               validEndTime: _this.tariffForm.validEndTimeStr,
               validStartTime: _this.tariffForm.validStartTime
             }
-            addTariff(params,_this.headers).then(res=>{
+            addTariff(params).then(res=>{
               if(res.status == 0){
                 _this.$message.success({
                   message:'资费项新建成功',
@@ -502,7 +501,7 @@ export default {
             validEndTime: this.tariffForm.validEndTimeStr,
             validStartTime: this.tariffForm.validStartTime
           }
-          editTariff(params,this.headers).then(res=>{
+          editTariff(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'资费项修改成功',
@@ -547,7 +546,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          disableTariff(params,this.headers).then(res=>{
+          disableTariff(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'资费项停用成功',
@@ -593,7 +592,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          enableTariff(params,this.headers).then(res=>{
+          enableTariff(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'资费项启用成功',
@@ -636,7 +635,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          deleteTariff(params,this.headers).then(res=>{
+          deleteTariff(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'资费项删除成功',

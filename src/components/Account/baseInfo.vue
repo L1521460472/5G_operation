@@ -42,7 +42,6 @@ export default {
       departmentName:'',
       lastLoginTime:'',
       // tableHeight:window.innerHeight - 100 +'px',
-      // headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   methods: {},

@@ -174,7 +174,6 @@ export default {
         refuseReason: [{ required: true, message: "审核意见不能为空", trigger: "blur" }],
       },
       auditBtn:false,//审核按钮
-      headers : {Authorization:getCookie('enterprisePass')},
       tableHeight:window.innerHeight - 310 +''
     };
   },
@@ -188,7 +187,7 @@ export default {
         currentPage:this.currentPage,
         pageSize: this.pageSize
       }
-      packageAuditList(params,this.headers).then(res=>{
+      packageAuditList(params).then(res=>{
         this.loading = false
         if(res.status == 0){
           this.tableData = res.data.records
@@ -245,7 +244,7 @@ export default {
         checkStatus: 1,
         packageAuthenticationId: row.id,
       }
-      packageAudit(params,this.headers).then(res=>{
+      packageAudit(params).then(res=>{
         if(res.status == 0){
           this.$message.success({
             message:'审核通过成功',
@@ -288,7 +287,7 @@ export default {
             checkStatus: 2,
             packageAuthenticationId: this.form.packageAuthenticationId,
           }
-          packageAudit(params,this.headers).then(res=>{
+          packageAudit(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'审核拒绝成功',

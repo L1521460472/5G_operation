@@ -9,7 +9,7 @@
           </el-button>
           <el-button class="addBtn" type="primary" size="small"  @click="reset">
             <i class="iconfont iconguanbi"></i>
-          </el-button> 
+          </el-button>
           <el-input class="search" v-model="searchCont" size="small" maxlength="50" placeholder="企业或应用名称">
             <i @click="searchAction" slot="suffix" class="el-input__icon el-icon-search"></i>
           </el-input>
@@ -19,7 +19,7 @@
             <i class="iconfont iconpeizhi"></i>
             配置
           </el-button>
-        </div> 
+        </div>
       </div>
       <div >
         <el-table
@@ -34,11 +34,12 @@
         >
           <el-table-column type="expand">
             <template slot-scope="props">
-              <el-form label-position="right" label-width="180px" class="demo-table-expand"> 
+              <el-form label-position="right" label-width="180px" class="demo-table-expand">
                 <el-form-item label="App ID：">{{props.row.appId}}</el-form-item>
                 <el-form-item label="App Secrect：">{{props.row.appSecrect}}</el-form-item>
                 <el-form-item label="业务权限：">
-                  <el-tree
+                  <div v-for="(item, index) in props.row.checkedList" :key="index">{{item}}</div>
+                  <!-- <el-tree
                     :data="props.row.bottomSelectedList"
                     show-checkbox
                     node-key="id"
@@ -49,16 +50,18 @@
                     ref="tree"
                     getCheckedNodes
                   >
-                  </el-tree>
+                  </el-tree> -->
                 </el-form-item>
+                <!-- <el-form-item label="签名：">{{props.row.sign}}</el-form-item> -->
                 <el-form-item label="业务回调通知URL：">{{props.row.enterpriseCallbackUrl}}</el-form-item>
                 <el-form-item label="消息上行推送URL：">{{props.row.enterpriseReceiveUpMessageUrl}}</el-form-item>
               </el-form>
             </template>
-          </el-table-column> 
-          <el-table-column type="selection" align="center" width="50"></el-table-column>     
+          </el-table-column>
+          <el-table-column type="selection" align="center" width="50"></el-table-column>
           <el-table-column prop="appId"  label="应用ID" width="260" show-overflow-tooltip></el-table-column>
           <el-table-column prop="name" label="应用名称" width="140" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="sign" label="签名" width="140" show-overflow-tooltip></el-table-column>
           <el-table-column prop="description" label="应用描述" width="140" show-overflow-tooltip></el-table-column>
           <el-table-column prop="enterpriseAccount" label="企业账号" width="130" show-overflow-tooltip></el-table-column>
           <el-table-column prop="enterpriseName" label="企业名称" width="140" show-overflow-tooltip></el-table-column>
@@ -66,15 +69,17 @@
           <el-table-column prop="createTime" label="创建时间" width="150" show-overflow-tooltip></el-table-column>
           <el-table-column fixed="right" label="操作" min-width="80" show-overflow-tooltip>
             <template slot-scope="scope">
-              <el-tooltip v-has="'enterpriseAccountAppConfigUpdate'"  effect="dark" content="配置" placement="top">
+              <span v-has="'enterpriseAccountAppConfigUpdate'" class="operation" @click="settingAction(scope.row)">配置</span>
+              <!-- <el-tooltip v-has="'enterpriseAccountAppConfigUpdate'"  effect="dark" content="配置" placement="top">
                 <img class="operation"  @click="settingAction(scope.row)" src="../../assets/images/app_icon.svg" >
-              </el-tooltip>
-            </template>  
-          </el-table-column> 
+              </el-tooltip> -->
+            </template>
+          </el-table-column>
         </el-table>
       </div>
       <div class="footer_page">
         <el-pagination
+          @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
           :page-sizes="[10, 20, 30, 40]"
@@ -125,7 +130,7 @@
                   <template slot-scope="scope">
                     <el-checkbox disabled v-model="scope.row.businessTypeChecked"></el-checkbox>
                     <span style="margin-left:10px">{{scope.row.businessStr}}</span>
-                  </template>  
+                  </template>
                 </el-table-column>
                 <el-table-column prop="costUnitStr" label="通道组" show-overflow-tooltip>
                   <template slot-scope="scope">
@@ -138,7 +143,7 @@
                       >
                       </el-option>
                     </el-select>
-                  </template>  
+                  </template>
                 </el-table-column>
               </el-table>
             </el-tab-pane>
@@ -155,7 +160,6 @@
 </template>
 <script>
 import {getAppList,getAppSettigDetail,changeaAppSettig} from '../../api/userName/api'
-import { getCookie,getButtonList} from "../../public";
 
 export default {
   name:'enterpriseApp',
@@ -177,7 +181,6 @@ export default {
       appSeetingDetail:null,//配置信息
       isDisable:true,//是否禁用头部按钮
       tableHeight:window.innerHeight - 310 +'',
-      // headers : {Authorization:getCookie('enterprisePass')},
     };
   },
   methods: {
@@ -195,6 +198,7 @@ export default {
           res.data.records.map(item=>{
             item.bottomSelectedList = null
             item.checkedList = []
+            item.checked = false
           })
           this.tableData = res.data.records
           this.total = res.data.total
@@ -219,7 +223,7 @@ export default {
     },
     // 重置清空
     reset(){
-      this.currentPage = 1 
+      this.currentPage = 1
       this.pageSize = 10
       this.searchCont = null
       this.getDataList()
@@ -237,6 +241,7 @@ export default {
     },
     // 配置
     settingAction(row){
+      this.appSeetingDetail = null
       getAppSettigDetail({id:row.id}).then(res=>{
         if(res.status == 0){
           this.appSeetingDetail = res.data
@@ -259,17 +264,18 @@ export default {
     // 确认变更配置
     confirmChange(){
       let arr = []
-      for(let i =0;i<this.appSeetingDetail.bottomSelectedList.length;i++){
-        if(this.appSeetingDetail.bottomSelectedList[i].productTypeChecked){
-          let obj ={} 
+      let bottomSelectArr =  this.appSeetingDetail.bottomSelectedList
+      for(let item of bottomSelectArr){
+        if(item.productTypeChecked){
+          let obj ={}
           let arr2 = []
-          for(let j=0;j<this.appSeetingDetail.bottomSelectedList[i].businessTypeList.length;j++){
-            if(this.appSeetingDetail.bottomSelectedList[i].businessTypeList[j].businessTypeChecked){
+          for(let item1 of item.businessTypeList){
+            if(item1.businessTypeChecked){
               let obj2 ={}
-              obj2.businessId = this.appSeetingDetail.bottomSelectedList[i].businessTypeList[j].businessId
-              obj2.channelGroupId = this.appSeetingDetail.bottomSelectedList[i].businessTypeList[j].channelGroupId
+              obj2.businessId = item1.businessId
+              obj2.channelGroupId = item1.channelGroupId
               arr2.push(obj2)
-              if(this.appSeetingDetail.bottomSelectedList[i].productType === 1 && obj2.channelGroupId == null){
+              if(item.productType === 1 && obj2.channelGroupId == null){
                 this.$message.warning({
                   message:'5G短信中业务类型对应的通道组不能为空',
                   center:true
@@ -278,7 +284,7 @@ export default {
               }
             }
           }
-          obj.productType = this.appSeetingDetail.bottomSelectedList[i].productType
+          obj.productType = item.productType
           obj.businessTypeList = arr2
           arr.push(obj)
         }
@@ -313,31 +319,45 @@ export default {
     handleExpand(row,expandedRows){
       getAppSettigDetail({id:row.id}).then(res=>{
         if(res.status == 0){
-          let checkedList = []
-          res.data.bottomSelectedList.map(item=>{
-            item.id = item.productType
-            item.name = item.productTypeStr
-            item.disabled = true
-            if(item.productTypeChecked){
-              checkedList.push(item.productType)
-            }
-            if(item.businessTypeList){
-              item.businessTypeList.map(item2=>{
-                item2.id = item2.businessId
-                item2.name = item2.businessStr
-                item2.disabled = true
-                if(item2.businessTypeChecked){
-                  checkedList.push(item2.businessId)
+          const checkedList = []
+          row.checkedList = []
+          const data = res.data.bottomSelectedList
+          data.forEach(item => {
+            if (item.businessTypeList.length > 0) {
+              item.businessTypeList.forEach(ele => {
+                if(ele.businessTypeChecked) {
+                  let val = item.productTypeStr + '-' + ele.businessStr
+                  checkedList.push(val)
                 }
               })
             }
           })
-          this.tableData.map(item=>{
-            if(item.id == row.id){
-              item.bottomSelectedList = res.data.bottomSelectedList
-              item.checkedList = checkedList
-            }
-          })
+          row.checkedList = row.checkedList.concat(checkedList)
+          // let checkedList = []
+          // res.data.bottomSelectedList.map(item=>{
+          //   item.id = item.productType
+          //   item.name = item.productTypeStr
+          //   item.disabled = true
+          //   if(item.productTypeChecked){
+          //     checkedList.push(item.productType)
+          //   }
+          //   if(item.businessTypeList){
+          //     item.businessTypeList.map(item2=>{
+          //       item2.id = item2.businessId
+          //       item2.name = item2.businessStr
+          //       item2.disabled = true
+          //       if(item2.businessTypeChecked){
+          //         checkedList.push(item2.businessId)
+          //       }
+          //     })
+          //   }
+          // })
+          // this.tableData.map(item=>{
+          //   if(item.id == row.id){
+          //     item.bottomSelectedList = res.data.bottomSelectedList
+          //     item.checkedList = checkedList
+          //   }
+          // })
         }else{
           this.$message({
             message:res.message,

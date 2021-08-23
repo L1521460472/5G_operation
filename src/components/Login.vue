@@ -74,7 +74,7 @@ export default {
   data() {
     return {
       ruleForm: {
-        username: getCookie('loginName'),
+        username: getCookie('account'),
         password: "",
         code: "",
       },
@@ -122,13 +122,22 @@ export default {
             postLogin(params).then(res=>{
               this.logining = false;
               if(res.status == 0){
-                setCookie("enterprisePass", res.data.token, 1/3);
-                setCookie("enterpriseUserName",encodeURIComponent(res.data.userName), 1/3);
-                setCookie("loginName", this.ruleForm.username);
+                // setCookie("enterprisePass", res.data.token, 1);
+                // setCookie("enterpriseUserName",encodeURIComponent(res.data.userName), 1);
+                sessionStorage.setItem('enterprisePass',  res.data.token)
+                sessionStorage.setItem('enterpriseUserName', encodeURIComponent(res.data.userName))
+
+                setCookie("account", this.ruleForm.username);
                 let headers = {Authorization:res.data.token}
                 getAllMenuList({},headers).then(res2=>{
                   if(res2.status == 0){   
-                    // this.$router.push('/homeIndex2')
+                    if(res2.data && res2.data.length<1){
+                      this.$message.error({
+                        message:'账号暂无访问权限,请先联系管理员分配权限',
+                        center:true
+                      })
+                      return
+                    }
                     if(res2.data[0].show){
                       this.$router.push(res2.data[0].children[0].url);
                       }else{
@@ -148,7 +157,6 @@ export default {
                 })
               }
             }).catch(err=>{
-              console.log(err)
               this.logining = false;
               this.$message.error({
                 message:err,

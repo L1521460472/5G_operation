@@ -84,7 +84,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" size="small" @click="confirmAddRole" v-if="addRoleTitle === '新建角色'">提 交</el-button>
+        <el-button type="primary" size="small" @click="confirmAddRole" v-if="addRoleTitle === '新建角色'" :disabled="isSubmit">提 交</el-button>
         <el-button type="primary" size="small" @click="confirmEditRole" v-if="addRoleTitle === '编辑角色'">提 交</el-button>
         <el-button @click="closeToast" size="small">取 消</el-button>
       </span>
@@ -152,7 +152,7 @@ export default {
       authorityEditBtn:false,//确定权限分配按钮
       innerHeight:window.innerHeight-100 + 'px',
       timer: null,
-      // headers : {Authorization:getCookie('enterprisePass')}
+      isSubmit:false,//是否禁用提交按钮
     };
   },
   methods: {
@@ -251,6 +251,7 @@ export default {
             clearTimeout(this.timer);
           }
           let _this = this
+          _this.isSubmit = true
           this.timer = setTimeout(function () {
           _this.timer = null;
           if(_this.form.type === 'add'){
@@ -259,6 +260,7 @@ export default {
               name: _this.form.roleName
             }
             addRole(params).then(res=>{
+              _this.isSubmit = false
               if(res.status == 0){
                 _this.$message.success({
                   message:'角色新增成功',
@@ -274,6 +276,7 @@ export default {
                 })
               }
             }).catch(err=>{
+              _this.isSubmit = false
               this.$message.error({
                 message:err,
                 center:true
@@ -553,7 +556,7 @@ export default {
           cursor: pointer;
           width: 236px;
           height: 34px;
-          margin:  0 20px 35px;
+          margin:  0 20px 16px;
           box-sizing: border-box;
           font-size: 14px;
           line-height: 34px;
@@ -595,6 +598,7 @@ export default {
         .headerBtn{
           display: flex;
           align-items: center;
+          margin-bottom: 0;
           .iconBtn.el-button{
             color: #368CFE;
             border-radius: 4px;
@@ -609,19 +613,6 @@ export default {
           .iconBtn.el-button:focus{
             background-color:#fff;
           }
-          // .iconBtn.el-button:hover{
-          //   color: #C0C4CC !important;
-          // }
-          // .iconBtn.active{
-          //   color: #368CFE !important;
-          //   border-radius: 4px;
-          //   border: 1px solid rgba(54,140,254,0.5);
-          // }
-          // .iconBtn.active:hover{
-          //   color: #368CFE !important;
-          //   border-radius: 4px;
-          //   border: 1px solid rgba(54,140,254,0.5);
-          // }
         }
       }
       .tip {

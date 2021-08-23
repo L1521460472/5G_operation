@@ -42,7 +42,7 @@
             <el-button class="addBtn" type="primary" size="small"  @click="reset">
               <i class="iconfont iconguanbi"></i>
             </el-button> 
-            <el-select v-model="roleId" ref="searchSelect"  @visible-change="isShowSelectOptions" clearable size="small" placeholder="角色">
+            <el-select v-model="roleId" ref="searchSelect" @change="changeRole"  @visible-change="isShowSelectOptions" clearable size="small" placeholder="角色">
               <el-option
                 v-for="item in roleList"
                 :key="item.id"
@@ -96,9 +96,12 @@
               </template>
             </el-table-column>
             <el-table-column prop="createTime" label="创建时间" width="150" show-overflow-tooltip></el-table-column>
-            <el-table-column fixed="right" label="操作" min-width="140" show-overflow-tooltip>
+            <el-table-column fixed="right" label="操作" min-width="160" show-overflow-tooltip>
               <template slot-scope="scope">
-                <el-tooltip v-if="accountEditBtn" class="item" effect="dark" content="修改" placement="top">
+                <span class="operation" v-if="accountEditBtn" @click="accountEditAction(scope.row)">修改</span>
+                <span class="operation" v-if="resetPasswordBtn" @click="resetPassword(scope.row)">重置密码</span>
+                <span class="operation" v-if="scope.row.roleId !== 1 && accountDeleteBtn" @click="accountDeleteAction(2,scope.row)">删除</span>
+                <!-- <el-tooltip v-if="accountEditBtn" class="item" effect="dark" content="修改" placement="top">
                   <img class="operation"   @click="accountEditAction(scope.row)" src="../../assets/images/edit_icon.svg" >
                 </el-tooltip>
                 <el-tooltip v-if="resetPasswordBtn" class="item" effect="dark" content="密码重置" placement="top">
@@ -106,11 +109,7 @@
                 </el-tooltip>
                 <el-tooltip v-if="scope.row.roleId !== 1 && accountDeleteBtn" class="item" effect="dark" content="删除" placement="top">
                   <img class="operation"  @click="accountDeleteAction(2,scope.row)"  src="../../assets/images/delete_icon.svg" >
-                </el-tooltip>
-
-                <!-- <img class="operation" v-if="accountEditBtn"  @click="accountEditAction(scope.row)" src="../../assets/images/edit_icon.svg" >
-                <img class="operation" v-if="resetPasswordBtn" @click="resetPassword(scope.row)" src="../../assets/images/resetPassword.svg" >
-                <img class="operation" v-if="scope.row.roleId !== 1 && accountDeleteBtn" @click="accountDeleteAction(2,scope.row)"  src="../../assets/images/delete_icon.svg" > -->
+                </el-tooltip> -->
               </template>
             </el-table-column>
           </el-table>
@@ -162,7 +161,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item prop="parmentDepartment" label="">
-            <el-button  type="primary" size="small" v-if="departmentDrawerTitle === '新建子部门'" @click="confirmAddDeparment">确 定</el-button>
+            <el-button  type="primary" size="small" v-if="departmentDrawerTitle === '新建子部门'" @click="confirmAddDeparment" :disabled="isSubmit">确 定</el-button>
             <el-button  type="primary" size="small" v-if="departmentDrawerTitle === '编辑部门'" @click="confirmEditDeparment">确 定</el-button>
             <el-button  size="small" @click="closeDepartmentDrawer">取 消</el-button>
         </el-form-item>
@@ -238,7 +237,7 @@
           <el-input size="small" type="password" v-model="accountForm.password2"></el-input>
         </el-form-item>
         <el-form-item prop="parmentDepartment" label="">
-            <el-button  type="primary" size="small" v-if="accountDrawerTitle === '新增账号'" @click="confirmAddAccount">确 定</el-button>
+            <el-button  type="primary" size="small" v-if="accountDrawerTitle === '新增账号'" @click="confirmAddAccount" :disabled="isSubmit">确 定</el-button>
             <el-button  type="primary" size="small" v-if="accountDrawerTitle === '修改账号'" @click="confirmEditAccount">确 定</el-button>
             <el-button  size="small" @click="closeAccountDrawer">取 消</el-button> 
         </el-form-item>
@@ -299,7 +298,7 @@ export default {
       } else if (value.length < 6 || value.length > 20) {
         callback(new Error("账号长度为6-20位"));
       } else if (!regexpAccount(value)) {
-        callback(new Error("账号必须有数字和小写字母组成"));
+        callback(new Error("账号不能为中文"));
       } else {
         callback();
       }
@@ -434,8 +433,8 @@ export default {
       resetPasswordBtn:false,//重置密码按钮
       timer: null,
       accountFlag:false,
+      isSubmit:false,//是否禁用提交按钮
       tableHeight:window.innerHeight - 310 +'',
-      // headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   methods: {
@@ -516,13 +515,16 @@ export default {
       this.currentPage = 1
       this.getDataList()
     },
+    // 切换角色
+    changeRole(){
+      this.searchAction()
+    },
     // 回车查询
     keyDown(e) {
       if (e.keyCode == 13) {
         this.searchAction();
       }
     },
-
     // 新增部门
     addDepartment(node,departmentData){
       this.departmentDrawerTitle = '新建子部门'
@@ -535,13 +537,13 @@ export default {
     },  
     // 新增部门确认
     confirmAddDeparment(){
-      let _this = this
       this.$refs.departmentForm.validate((valid) => {
         if(valid){
           if (this.timer) {
             clearTimeout(this.timer);
           }
           let _this = this
+          _this.isSubmit = true
           this.timer = setTimeout(function () {
             _this.timer = null;
             let params ={
@@ -550,6 +552,7 @@ export default {
               description:_this.departmentForm.departmentDescribe,
             }
             addDepartment(params).then(res=>{
+              _this.isSubmit = false
               if(res.status == 0){
                 _this.$message.success({
                   message:'子部门新建成功',
@@ -565,6 +568,7 @@ export default {
                 })
               }
             }).catch(err=>{
+              _this.isSubmit = false
               _this.$message.error({
                 message:err,
                 center:true
@@ -680,6 +684,7 @@ export default {
             clearTimeout(this.timer);
           }
           let _this = this
+          _this.isSubmit = true
           this.timer = setTimeout(function () {
             _this.timer = null;
           let params ={
@@ -693,6 +698,7 @@ export default {
             userName: _this.accountForm.name
           }
           addAccount(params).then(res=>{
+            _this.isSubmit = false
             if(res.status == 0){
               _this.$message.success({
                 message:'新增账号成功',
@@ -708,6 +714,7 @@ export default {
               })
             }
           }).catch(err=>{
+            _this.isSubmit = false
             _this.$message.error({
               message:err,
               center:true

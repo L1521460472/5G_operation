@@ -13,7 +13,7 @@
         class="demo-table-expand"
         v-if="configureData"
       >
-        <el-form-item label="基础资费：">
+        <!-- <el-form-item label="基础资费：">
           <el-table
             border
             :header-cell-style="{background: '#F5F7FA',color: '#333333',lineHeight: '20px'}"
@@ -24,9 +24,9 @@
             <el-table-column prop="costUnitStr" label="单位" show-overflow-tooltip></el-table-column>
             <el-table-column prop="amount" label="单价" show-overflow-tooltip></el-table-column>
           </el-table>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="使用产品：" class="product">
-            <el-checkbox v-for="item in configureData.topProductTypeList" :key="item.productType" v-model="item.productTypeChecked" @change="changeProduct(item)">{{item.productTypeStr}}</el-checkbox>
+            <el-checkbox v-for="item in configureData.topProductTypeList" :key="item.productType" disabled v-model="item.productTypeChecked" @change="changeProduct(item)">{{item.productTypeStr}}</el-checkbox>
         </el-form-item>
         <el-form-item
           label="*资费配置："
@@ -52,26 +52,37 @@
                     <span style="margin-left:10px">{{scope.row.businessStr}}</span>
                   </template>  
                 </el-table-column>
+                <el-table-column width="170" prop="businessStr" label="消息类型" >
+                  <template slot-scope="scope">
+                    <div class="tableSplit" v-for="messageItem in scope.row.messageTypeList" :key="messageItem.messageTypeId" >
+                      <el-checkbox :disabled="!scope.row.businessTypeChecked"  v-model="messageItem.messageTypeChecked">{{messageItem.messageTypeStr}}</el-checkbox>
+                    </div>                  
+                  </template>  
+                </el-table-column>
                 <el-table-column prop="costUnitStr" label="单位" show-overflow-tooltip>
                   <template slot-scope="scope">
-                    <el-select :disabled="!scope.row.businessTypeChecked"  v-model="scope.row.costUnit"  size="small">
-                      <el-option
-                        v-for="item in costUnitList"
-                        :key="item.id"
-                        :label="item.value"
-                        :value="item.id"
-                      >
-                      </el-option>
-                    </el-select>
+                    <div class="tableSplit" v-for="costUnitItem in scope.row.messageTypeList" :key="costUnitItem.messageTypeId">
+                      <el-select clearable  :disabled="!costUnitItem.messageTypeChecked"  v-model="costUnitItem.costUnit"  size="small">
+                        <el-option
+                          v-for="item in costUnitList"
+                          :key="item.id"
+                          :label="item.value"
+                          :value="item.id"
+                        >
+                        </el-option>
+                      </el-select>
+                    </div>
                   </template>  
                 </el-table-column>
                 <el-table-column prop="unitPrice" label="单价" show-overflow-tooltip>
                   <template slot-scope="scope">
-                    <el-input size="small" :disabled="!scope.row.businessTypeChecked" v-model="scope.row.unitPrice"></el-input>
+                    <div class="tableSplit" v-for="priceItem in scope.row.messageTypeList" :key="priceItem.messageTypeId">
+                      <el-input size="small"  oninput="value=value.match(/\d+\.?\d{0,4}/,'')" :disabled="!priceItem.messageTypeChecked" v-model="priceItem.unitPriceStr" @blur="priceItem.unitPriceStr = $event.target.value;if(priceItem.unitPriceStr!==null &&priceItem.unitPriceStr!==''){priceItem.unitPriceStr=Number(priceItem.unitPriceStr).toFixed(4)}"></el-input>
+                    </div>
                   </template>  
                 </el-table-column>
               </el-table>
-            </el-tab-pane>
+            </el-tab-pane> 
           </el-tabs>
         </el-form-item>
       </el-form>
@@ -84,8 +95,7 @@
 </template>
 <script>
 import {configEnterpriseAccount} from '../../api/userName/api'
-import { getCookie} from "../../public";
-
+import {toFixedRrice} from '../../public'
 export default {
   name: "changeConfigur",
   props: {
@@ -114,7 +124,6 @@ export default {
           value:'元/6s'
         }
       ],//单位列表
-      // headers : {Authorization:getCookie('enterprisePass')},
     };
   },
   methods: {
@@ -140,26 +149,53 @@ export default {
     },
     // 变更配置确认
     configAction(){
+      let slectDataArr = this.configureData.bottomProductTypeSelectedList
       let arr= []
-      for(let i=0;i<this.configureData.bottomProductTypeSelectedList.length;i++){
+      for(let item1 of slectDataArr){
         let obj ={} 
         let arr2 = []
-        if(!this.configureData.bottomProductTypeSelectedList[i].businessTypeList){
-          this.$message.error({
-            message:'选中产品的业务类型为空',
-            center:true
-          })
-        }       
-        for(let j=0;j<this.configureData.bottomProductTypeSelectedList[i].businessTypeList.length;j++){
-          if(this.configureData.bottomProductTypeSelectedList[i].businessTypeList[j].businessTypeChecked){
+        for(let item2 of item1.businessTypeList){
+          if(item2.businessTypeChecked){
             let obj2 ={}
-            obj2.businessId = this.configureData.bottomProductTypeSelectedList[i].businessTypeList[j].businessId
-            obj2.costUnit = this.configureData.bottomProductTypeSelectedList[i].businessTypeList[j].costUnit
-            obj2.unitPrice = this.configureData.bottomProductTypeSelectedList[i].businessTypeList[j].unitPrice
+            obj2.businessId = item2.businessId
+            let arr3 =[]
+            for(let item3 of item2.messageTypeList){
+              if(item3.messageTypeChecked){
+                let obj3 ={}
+                obj3.messageTypeId = item3.messageTypeId
+                obj3.costUnit = item3.costUnit
+                obj3.unitPrice = toFixedRrice(item3.unitPriceStr) 
+                if(obj3.costUnit ===null || obj3.costUnit ==='' || obj3.unitPrice === null || obj3.unitPrice === ''){
+                  this.$message.error({
+                    message:'选中的配置单位或者单价不能为空',
+                    center:true
+                  })
+                  return
+                }
+                // let flag =  /^\d+(\.{0,1}\d+){0,1}$/.test(obj3.unitPrice)
+                // if(obj3.unitPrice !==null && obj3.unitPrice !=='' && !flag){
+                //   this.$message.error({
+                //     message:'单价格式不正确',
+                //     center:true
+                //   })
+                //   return
+                // }
+                arr3.push(obj3)
+
+              }
+            }
+            if(arr3.length <1){
+              this.$message.error({
+                message:'选中业务类型中的消息类型不能为空',
+                center:true
+              })
+              return
+            }
+            obj2.messageTypeList = arr3
             arr2.push(obj2)
           }
         }
-        obj.productType = this.configureData.bottomProductTypeSelectedList[i].productType
+        obj.productType = item1.productType
         obj.businessTypeList = arr2
         arr.push(obj)
       }
@@ -246,15 +282,17 @@ export default {
   .product{
     margin-top: 15px;
   }
-  // .business{
-  //   margin-top: 22px;
-  // }
-  // .business /deep/ .el-form-item__label{
-  //   padding-right:7px ;
-  // }
   /deep/ .el-dialog__body{
     max-height: 450px;
     overflow: auto;
+  }
+  .tableSplit{
+    height: 32px;
+    line-height: 32px;
+    margin-bottom: 10px;
+  }
+  .tableSplit:last-child{
+    margin-bottom: 0;
   }
 }
 </style>

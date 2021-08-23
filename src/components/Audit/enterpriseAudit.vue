@@ -10,7 +10,7 @@
           <el-button class="addBtn" type="primary" size="small" @click="reset">
             <i class="iconfont iconguanbi"></i>
           </el-button> 
-          <el-select v-model="auditStatus" ref="searchSelect"  @visible-change="isShowSelectOptions" clearable size="small" placeholder="审核状态">
+          <el-select v-model="auditStatus" ref="searchSelect" @change="changeStatus"  @visible-change="isShowSelectOptions" clearable size="small" placeholder="审核状态">
             <el-option
               v-for="item in auditStatusList"
               :key="item.id"
@@ -51,9 +51,9 @@
         <el-table-column prop="checkStatusStr" label="状态" width="110" show-overflow-tooltip>
           <template slot-scope="scope">
             <div class="status">
-              <span v-if="scope.row.checkStatus == 0">待审核</span>
+              <span v-if="scope.row.checkStatus == 0">审核中</span>
               <span v-if="scope.row.checkStatus == 1">审核通过</span>
-              <span v-if="scope.row.checkStatus == 2">审核拒绝</span>
+              <span v-if="scope.row.checkStatus == 2">审核不通过</span>
               <el-tooltip v-if="scope.row.checkStatus == 2" class="item" effect="dark"  placement="top">
                   <p slot="content" class="refuseReason">{{scope.row.checkContent}}</p>
                   <img  src="../../assets/images/redWarning_icon.svg" alt="">
@@ -64,12 +64,14 @@
         <el-table-column prop="checkTime" label="更新时间" width="160" show-overflow-tooltip></el-table-column>
         <el-table-column  label="操作" min-width="110" show-overflow-tooltip>
           <template slot-scope="scope">
-            <el-tooltip v-has="'enterpriseInfoCheck'" class="item" effect="dark" content="审核通过" placement="top">
+            <span class="operation" v-has="'enterpriseInfoCheck'" @click="passAction(scope.row)">通过</span>
+            <span class="operation" v-has="'enterpriseInfoCheck'" @click="refuseAction(scope.row)">不通过</span>
+            <!-- <el-tooltip v-has="'enterpriseInfoCheck'" class="item" effect="dark" content="审核通过" placement="top">
               <img class="operation"  @click="passAction(scope.row)" src="../../assets/images/auditPass_icon.svg" >
             </el-tooltip>
             <el-tooltip v-has="'enterpriseInfoCheck'" class="item" effect="dark" content="审核拒绝" placement="top">
               <img class="operation" @click="refuseAction(scope.row)"  src="../../assets/images/auditRefunse_icon.svg" >
-            </el-tooltip>
+            </el-tooltip> -->
           </template> 
         </el-table-column> 
       </el-table>
@@ -117,7 +119,6 @@
 </template>
 <script>
 import {enterpriseAuditList,enterpriseAudit} from '../../api/audit/api'
-import { getCookie,getButtonList} from "../../public";
 
 export default {
   name:'enterpriseAudit',
@@ -132,7 +133,7 @@ export default {
       auditStatusList:[
         {
           id:0,
-          value:'待审核'
+          value:'审核中'
         },
         {
           id:1,
@@ -140,7 +141,7 @@ export default {
         },
         {
           id:2,
-          value:'审核拒绝'
+          value:'审核不通过'
         }
       ],//审核状态列表
       searchCont:null,//搜索内容
@@ -153,7 +154,6 @@ export default {
       rules: {
         refuseReason: [{ required: true, message: "审核意见不能为空", trigger: "blur" }],
       },
-      // headers : {Authorization:getCookie('enterprisePass')},
       tableHeight:window.innerHeight - 310 +''
     };
   },
@@ -208,6 +208,10 @@ export default {
     searchAction(){
       this.currentPage = 1
       this.getDataList()
+    },
+    // 切换状态
+    changeStatus(){
+      this.searchAction()
     },
     // 回车查询
     keyDown(e) {
@@ -275,7 +279,7 @@ export default {
           enterpriseAudit(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
-                message:'审核拒绝成功',
+                message:'审核成功',
                 center:true
               })
               this.refuseToast =false

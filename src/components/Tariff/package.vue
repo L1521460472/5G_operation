@@ -310,7 +310,6 @@ export default {
       deleteBtn:false,//删除按钮 
       tableHeight:window.innerHeight - 310 +'',
       timer: null,
-      headers : {Authorization:getCookie('enterprisePass')},
     };
   },
   methods: {
@@ -323,7 +322,7 @@ export default {
         currentPage: this.currentPage,
         pageSize: this.pageSize
       }
-      getPackageList(params,this.headers).then(res=>{
+      getPackageList(params).then(res=>{
         this.loading = false
         if(res.status == 0){
           this.tableData = res.data.records
@@ -368,7 +367,7 @@ export default {
     },
     // 获取业务类型
     getProductList(){
-      productypeList({typeCode:'productType'},this.headers).then(res=>{
+      productypeList({typeCode:'productType'}).then(res=>{
         if(res.status == 0){
           this.productList = res.data
         }else{
@@ -410,7 +409,7 @@ export default {
               name: _this.packageForm.packageName,
               productType: _this.packageForm.product,
             }
-            addPackage(params,_this.headers).then(res=>{
+            addPackage(params).then(res=>{
               if(res.status == 0){
                 _this.$message.success({
                   message:'套餐新建成功',
@@ -456,7 +455,7 @@ export default {
             name: this.packageForm.packageName,
             productType: this.packageForm.product,
           }
-          editPackage(params,this.headers).then(res=>{
+          editPackage(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'套餐修改成功',
@@ -490,7 +489,7 @@ export default {
         pageSize: 10,
         currentPage: this.currentPage2
       }
-      changeTariffList(params,this.headers).then(res=>{
+      changeTariffList(params).then(res=>{
         this.loading2 = false
         if(res.status == 0){
           this.traiffData = res.data.records
@@ -541,7 +540,7 @@ export default {
         costItemIds: ids.toString(),
         id: this.selectData[0].id
       }
-      changeTariff(params,this.headers).then(res=>{
+      changeTariff(params).then(res=>{
         if(res.status == 0){
           this.$message.success({
             message:'资费项变更成功',
@@ -584,7 +583,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          disablePackage(params,this.headers).then(res=>{
+          disablePackage(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'套餐停用成功',
@@ -630,7 +629,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          enablePackage(params,this.headers).then(res=>{
+          enablePackage(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'套餐启用成功',
@@ -673,7 +672,7 @@ export default {
       })
         .then(() => {
           let params = {ids:ids.toString()}
-          deletePackage(params,this.headers).then(res=>{
+          deletePackage(params).then(res=>{
             if(res.status == 0){
               this.$message.success({
                 message:'套餐删除成功',

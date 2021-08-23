@@ -113,25 +113,29 @@ export default {
         "/userName",
         "/audit",
         "/account",
+        "/message",
+        "/bill",
         "/channel",
         "/seeting",
         "/material",
         "/baseSeeting",
-        "/statistics"
+        "/statistics",
+        "/safe"
       ], //一进入就打开的菜单
       menuItems: [],
-      userName:decodeURIComponent(getCookie('enterpriseUserName')),
+      userName:decodeURIComponent(sessionStorage.getItem("enterpriseUserName")),
       btnList: [],
-      headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   methods: {
     // 退出
     logout() {
-      loginOut({},this.headers).then(res=>{
+      loginOut().then(res=>{
         if(res.status == 0){
-          removeCookie('enterprisePass')
-          removeCookie('enterpriseUserName')
+          // removeCookie('enterprisePass')
+          // removeCookie('enterpriseUserName')
+          sessionStorage.removeItem('enterprisePass')
+          sessionStorage.removeItem('enterpriseUserName')
           sessionStorage.removeItem('btnList')
           this.$router.push("/");
         }else{
@@ -148,7 +152,7 @@ export default {
       })
     },
     getMenuList(){
-      getAllMenuList({},this.headers).then(res=>{
+      getAllMenuList().then(res=>{
         if(res.status == 0){
           this.menuItems = res.data
           const result = this.getTreeData(res.data)
@@ -274,7 +278,6 @@ export default {
     .el-menu-item.is-active span{
       color: #368cfe !important;
     }
-
   }
   .el-aside:hover{
     overflow-y: auto;
@@ -289,16 +292,11 @@ export default {
   .el-menu-item:hover {
     background-color: #ededf2 !important;
   }
-  .el-menu-vertical-demo:not(.el-menu--collapse) {
-    height: 100%;
-    background: #f8f8fb !important;
-  }
   .el-menu-vertical-demo {
+    width: 200px;
     height: 100%;
   }
-
   .el-main {
-    // height: 100%;
     background: #f8f8fb !important;
     .main {
       min-height: 100%;
@@ -307,7 +305,6 @@ export default {
       background: #fff !important;
     }
   }
-
   body > .el-container {
     margin-bottom: 40px;
   }

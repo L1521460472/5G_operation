@@ -6,9 +6,9 @@ const path = require('path')
 // const serverIp='http://172.18.11.154:7200'
 
 
-const serverIp='http://172.18.11.155:7200'
+// const serverIp='http://172.18.11.155:7200'
 
-const serverIp='http://172.18.11.132:7200'
+const serverIp='http://172.18.11.152:7200'
 
 module.exports = {
   dev: {
@@ -25,10 +25,10 @@ module.exports = {
         changeOrigin: true,     // target是域名的话，需要这个参数，
         secure: false,          // 设置支持https协议的代理
       },
-      '/enterprise-base-service': {
+      '/enterprise-operation-service': {
         target: serverIp,
         ws:true,
-        pathRewrite: {'^/enterprise-base-service' : '/enterprise-base-service'},
+        pathRewrite: {'^/enterprise-operation-service' : '/enterprise-operation-service'},
         changeOrigin: true,     // target是域名的话，需要这个参数，
         secure: false,          // 设置支持https协议的代理
       }

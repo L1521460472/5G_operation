@@ -237,15 +237,14 @@
         <el-table-column prop="content" show-overflow-tooltip label="描述" width="130"></el-table-column>
         <el-table-column label="操作" min-width="100">
           <template slot-scope="scope">
-            <el-tooltip  class="item" effect="dark" content="修改" placement="top">
+            <span class="operation" @click="handleClick(scope.row)">修改</span>
+            <span class="operation" @click="handleDelete(scope.row)">删除</span>
+            <!-- <el-tooltip  class="item" effect="dark" content="修改" placement="top">
               <img class="operation"   @click="handleClick(scope.row)" src="../../assets/images/edit_icon.svg" >
             </el-tooltip>
             <el-tooltip  class="item" effect="dark" content="删除" placement="top">
               <img   class="operation"  @click="handleDelete(scope.row)"  src="../../assets/images/delete_icon.svg" >
-            </el-tooltip>
-
-            <!-- <img class="operation"   @click="handleClick(scope.row)" src="../../assets/images/edit_icon.svg" >
-            <img     @click="handleDelete(scope.row)"  src="../../assets/images/delete_icon.svg" > -->
+            </el-tooltip> -->
           </template>  
         </el-table-column>
       </el-table>
@@ -299,7 +298,6 @@ export default {
       data: [], //规则
       buttonData: [], //添加按钮
       dataLanguage: [],
-      // headers : {Authorization:getCookie('enterprisePass')}
     };
   },
   mounted() {
